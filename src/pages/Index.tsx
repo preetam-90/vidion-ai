@@ -1,4 +1,3 @@
-
 import { useRef, useEffect } from "react";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
@@ -34,10 +33,10 @@ const Index = () => {
         <div className="max-w-5xl mx-auto py-4 px-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <span className="text-white font-semibold">G</span>
+              <span className="text-white font-semibold">V</span>
             </div>
             <h1 className="font-semibold text-lg text-gradient-primary">
-              Groq Chat
+              Vidion AI
             </h1>
           </div>
           <div className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full">
@@ -50,9 +49,9 @@ const Index = () => {
         <div className="pt-8">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64">
-              <h2 className="text-2xl font-semibold mb-2 text-gradient">Welcome to Groq Chat</h2>
+              <h2 className="text-2xl font-semibold mb-2 text-gradient">Welcome to Vidion AI</h2>
               <p className="text-muted-foreground text-center max-w-md">
-                Start a conversation with Groq's advanced AI assistant. Ask a question or share a thought.
+                Start a conversation with Vidion AI's advanced assistant. Ask a question or share a thought.
               </p>
             </div>
           ) : (
@@ -62,6 +61,7 @@ const Index = () => {
                   key={index}
                   role={message.role}
                   content={message.content}
+                  animate={message.role === "assistant"}
                 />
               ))}
               {isLoading && <TypingIndicator />}

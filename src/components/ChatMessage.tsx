@@ -1,5 +1,5 @@
-
 import { cn } from "@/lib/utils";
+import { AnimatedMessage } from "./AnimatedMessage";
 
 type MessageRole = "user" | "assistant" | "system";
 
@@ -7,12 +7,14 @@ interface ChatMessageProps {
   role: MessageRole;
   content: string;
   isLoading?: boolean;
+  animate?: boolean;
 }
 
 export const ChatMessage = ({
   role,
   content,
   isLoading = false,
+  animate = true,
 }: ChatMessageProps) => {
   return (
     <div
@@ -31,9 +33,13 @@ export const ChatMessage = ({
           {role === "user" ? "You" : "AI Assistant"}
         </div>
       </div>
-      <div className="prose prose-invert max-w-none">
-        {isLoading ? "..." : content}
-      </div>
+      {isLoading ? (
+        <div className="prose prose-invert max-w-none">...</div>
+      ) : role === "assistant" && animate ? (
+        <AnimatedMessage text={content} />
+      ) : (
+        <div className="prose prose-invert max-w-none">{content}</div>
+      )}
     </div>
   );
 };
