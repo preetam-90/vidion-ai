@@ -30,7 +30,7 @@ export const ChatMessage = ({
             role === "user" ? "bg-chat-user/10 text-chat-user" : "bg-chat-assistant/10 text-chat-assistant"
           )}
         >
-          {role === "user" ? "You" : "AI Assistant"}
+          {role === "user" ? "You" : "Vidion AI"}
         </div>
       </div>
       {isLoading ? (
