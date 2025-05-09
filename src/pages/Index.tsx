@@ -40,7 +40,7 @@ const Index = () => {
             </h1>
           </div>
           <div className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full">
-            Model: llama3-8b
+            Model: vidion ai-8b
           </div>
         </div>
       </header>

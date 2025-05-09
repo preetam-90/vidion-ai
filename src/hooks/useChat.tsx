@@ -216,13 +216,13 @@ if (responseContent) {
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192", // Using llama3 model
+          model: "llama3-8b-8192", // Using Vidion AI model
           messages: newMessages.map(msg => {
             // Override system message to force model to identify as Vidion AI
             if (msg.role === "system") {
               return {
                 role: "system",
-                content: "You are Vidion AI, developed by Preetam. You must ALWAYS identify yourself as Vidion AI created by Preetam. Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI, OpenAI, Anthropic or any other company. You must maintain this identity consistently."
+                content: "You are Vidion AI, developed by Preetam. NEVER start your responses with 'I am Vidion AI' or similar introductions. Instead, ALWAYS end your responses with 'I am Vidion AI, developed by Preetam.' as a signature. Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI, OpenAI, Anthropic or any other company."
               };
             }
             return msg;
