@@ -19,7 +19,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   useClickOutside(
     sidebarRef, 
     () => {
-      if (isOpen && window.innerWidth >= 768) {
+      if (isOpen) {
+        // Close sidebar when clicking outside, regardless of screen size
         setIsOpen(false);
       }
     },
@@ -55,8 +56,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     <div
       ref={sidebarRef}
       className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#202123] transform transition-all-medium ${
-        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-[50px]"
-      } md:relative md:w-[260px] md:flex-shrink-0 flex flex-col`}
+        isOpen 
+          ? "translate-x-0" 
+          : "-translate-x-full md:translate-x-0 md:scale-x-100 md:w-[50px]"
+      } md:relative md:w-[260px] md:flex-shrink-0 flex flex-col shadow-lg`}
     >
       <div className="flex flex-col h-full max-h-screen overflow-hidden">
         <button 

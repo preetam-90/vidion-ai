@@ -12,10 +12,30 @@ import { Message, MessageRole } from "@/types/chat";
 const Index = () => {
   const { currentChat, addMessageToChat } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
+
+  // Set initial sidebar state based on screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true); // Open by default on desktop
+      } else {
+        setSidebarOpen(false); // Closed by default on mobile
+      }
+    };
+
+    // Initial check
+    checkScreenSize();
+
+    // Add event listener for resize
+    window.addEventListener('resize', checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -106,6 +126,15 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen bg-[#0f1117]">
+      {/* Mobile backdrop overlay */}
+      {sidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity fade-in"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
       <div className="flex flex-col flex-1 h-screen max-h-screen overflow-hidden relative">
