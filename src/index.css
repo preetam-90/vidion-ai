@@ -44,6 +44,11 @@
     --sidebar-accent-foreground: 220 10% 98%;
     --sidebar-border: 220 13% 18%;
     --sidebar-ring: 250 95% 73%;
+    
+    /* Animation variables */
+    --transition-slow: 300ms;
+    --transition-medium: 200ms;
+    --transition-fast: 150ms;
   }
 }
 
@@ -101,5 +106,46 @@
   
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Animation utilities */
+  .transition-all-medium {
+    transition: all var(--transition-medium) ease-in-out;
+  }
+  
+  .transition-transform-medium {
+    transition: transform var(--transition-medium) ease-in-out;
+  }
+  
+  .transition-opacity-medium {
+    transition: opacity var(--transition-medium) ease-in-out;
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.2s ease-out forwards;
+  }
+  
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }

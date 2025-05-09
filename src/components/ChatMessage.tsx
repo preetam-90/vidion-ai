@@ -33,7 +33,7 @@ export const ChatMessage = ({
       {/* User message */}
       {isUser ? (
         <div className="max-w-3xl mx-auto px-4 md:px-8">
-          <div className="bg-[#343541] text-white rounded-lg px-4 py-3 shadow-md inline-block max-w-[90%]">
+          <div className="bg-[#343541] text-white rounded-lg px-4 py-3 shadow-md inline-block max-w-[90%] scale-in">
             <div className="prose prose-invert prose-p:leading-relaxed prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-700 max-w-none break-words whitespace-pre-wrap">
               {content}
             </div>
@@ -41,7 +41,7 @@ export const ChatMessage = ({
         </div>
       ) : (
         /* AI message */
-        <div className="max-w-3xl mx-auto px-4 md:px-8 relative group">
+        <div className="max-w-3xl mx-auto px-4 md:px-8 relative group fade-in">
           {isLoading ? (
             <div className="prose prose-invert max-w-none">...</div>
           ) : animate ? (
