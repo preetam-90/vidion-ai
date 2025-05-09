@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Message, MessageRole } from "@/types/chat";
 
 const Index = () => {
-  const { currentChat, addMessageToChat } = useChat();
+  const { currentChat, addMessageToChat, createNewChat } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,6 +124,11 @@ const Index = () => {
     setInputValue("");
   };
 
+  const handleCreateNewChat = () => {
+    createNewChat();
+    setSidebarOpen(false); // Close sidebar after creating a new chat on mobile
+  };
+
   return (
     <div className="flex min-h-screen bg-[#0f1117]">
       {/* Mobile backdrop overlay */}
@@ -139,34 +144,31 @@ const Index = () => {
       
       <div className="flex flex-col flex-1 h-screen max-h-screen overflow-hidden relative">
         {/* Mobile header */}
-        <div className="border-b border-gray-800 bg-[#0f1117] py-2 px-3 md:hidden flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-2 text-gray-300"
+        <div className="border-b border-gray-800 bg-[#111218] py-3 px-4 md:hidden flex items-center gap-3">
+          <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-gray-300 focus:outline-none"
+            aria-label="Toggle menu"
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
-          <div className="flex-1 truncate text-sm font-medium text-gray-100">
-            {currentChat?.title || "New chat"}
+          </button>
+          <div className="flex-1 truncate text-white font-medium">
+            {currentChat?.title || "New Chat"}
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-300"
+          <button
+            onClick={handleCreateNewChat}
+            className="text-gray-300 focus:outline-none"
+            aria-label="New chat"
           >
             <PlusCircle className="h-5 w-5" />
-            <span className="sr-only">New chat</span>
-          </Button>
+          </button>
         </div>
 
         <main className="flex-1 overflow-y-auto">
           <div className="pb-32 pt-4 md:pt-10 max-w-3xl mx-auto w-full">
             {!currentChat || messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[calc(100vh-150px)]">
-                <h2 className="text-4xl font-medium mb-6 text-white">
+              <div className="flex flex-col items-center justify-start h-[calc(100vh-250px)] pt-8 md:pt-16 md:justify-center">
+                <h2 className="text-2xl md:text-4xl font-medium mb-4 text-white text-center px-6">
                   Hey, what's on your mind today?
                 </h2>
               </div>
@@ -188,19 +190,19 @@ const Index = () => {
         </main>
 
         <div className="absolute left-0 right-0 bottom-0 bg-[#0f1117] bg-opacity-80 backdrop-blur-sm w-full">
-          <div className="max-w-2xl mx-auto px-4 py-4 md:px-8 md:py-6">
+          <div className="max-w-2xl mx-auto px-4 py-3 md:py-4 md:px-8 md:py-6">
             <form onSubmit={handleSubmit} className="relative">
               <div className="flex items-center rounded-lg border border-gray-700 bg-[#1a1c22] shadow-lg">
-                <div className="flex-1 px-3 py-3 md:py-4">
+                <div className="flex-1 px-3 py-2 md:py-3">
                   <textarea
-                    className="w-full bg-transparent border-0 focus:ring-0 text-white resize-none max-h-[200px] placeholder-gray-400 outline-none"
+                    className="w-full bg-transparent border-0 focus:ring-0 text-white resize-none max-h-[80px] placeholder-gray-400 outline-none text-sm md:text-base"
                     placeholder="Message Vidion AI"
                     rows={1}
                     value={inputValue}
                     onChange={(e) => {
                       setInputValue(e.target.value);
                       e.target.style.height = 'auto';
-                      e.target.style.height = `${e.target.scrollHeight}px`;
+                      e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -212,10 +214,11 @@ const Index = () => {
                 </div>
                 <div className="pr-3 flex">
                   <button
-                    type="button"
-                    className="p-2 rounded-md text-gray-400 hover:bg-gray-700"
+                    type="submit"
+                    className="p-1.5 md:p-2 rounded-md text-gray-400 hover:bg-gray-700"
+                    disabled={!inputValue.trim()}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 md:w-5 md:h-5">
                       <path d="M12 5V19M12 5L6 11M12 5L18 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
@@ -223,7 +226,7 @@ const Index = () => {
               </div>
             </form>
             
-            <div className="mt-2 text-center text-xs text-gray-500">
+            <div className="mt-1 md:mt-2 text-center text-[10px] md:text-xs text-gray-500">
               Vidion AI may produce inaccurate information about people, places, or facts.
             </div>
           </div>
