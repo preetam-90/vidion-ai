@@ -209,6 +209,7 @@ if (responseContent) {
 }
       
       // Call Vidion AI API
+      console.log("Sending request to Groq API...");
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -216,9 +217,8 @@ if (responseContent) {
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192", // Using Vidion AI model
+          model: "llama3-8b-8192",
           messages: newMessages.map(msg => {
-            // Override system message to force model to identify as Vidion AI
             if (msg.role === "system") {
               return {
                 role: "system",
@@ -227,8 +227,13 @@ if (responseContent) {
             }
             return msg;
           }),
-          temperature: 0.7,
-          max_tokens: 1000
+          temperature: 0.1,
+          max_tokens: 500,
+          stream: true,
+          presence_penalty: 0,
+          frequency_penalty: 0,
+          top_p: 0.1,
+          n: 1
         })
       });
 
@@ -236,12 +241,87 @@ if (responseContent) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || "Failed to get response from Vidion AI API");
       }
-
-      const data = await response.json();
-      const assistantMessage = data.choices[0].message;
       
-      // Add assistant response to state
+      console.log("Response received, starting stream processing...");
+      
+      // Create initial empty assistant message
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: ""
+      };
+      
+      // Add the initial empty message to state
       setMessages([...newMessages, assistantMessage]);
+      
+      // Handle streaming response
+      if (!response.body) {
+        throw new Error("Response body is null");
+      }
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let partialChunk = "";
+
+      try {
+        // Process each chunk as it arrives
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            console.log("Stream complete");
+            break;
+          }
+          
+          // Decode the chunk and add any leftover partial chunk
+          const chunk = partialChunk + decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          
+          // The last line might be incomplete, save it for the next iteration
+          partialChunk = lines.pop() || "";
+          
+          for (const line of lines) {
+            if (line.trim() === '') continue;
+            
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              
+              if (data === '[DONE]') {
+                console.log("Received [DONE] signal");
+                continue;
+              }
+              
+              try {
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices[0]?.delta;
+                
+                if (delta && delta.content) {
+                  console.log(`Received token: "${delta.content}"`);
+                  
+                  // Update messages state with the new token immediately
+                  setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    
+                    newMessages[newMessages.length - 1] = {
+                      ...lastMessage,
+                      content: lastMessage.content + delta.content
+                    };
+                    
+                    return newMessages;
+                  });
+                }
+              } catch (e) {
+                console.error('Error parsing chunk:', e, 'Raw data:', data);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error in stream processing:", err);
+        throw err;
+      } finally {
+        reader.releaseLock();
+      }
     } catch (err) {
       console.error("Error sending message:", err);
       setError(err instanceof Error ? err.message : "An unknown error occurred");

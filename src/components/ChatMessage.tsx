@@ -42,11 +42,11 @@ export const ChatMessage = ({
       ) : (
         /* AI message */
         <div className="max-w-3xl mx-auto px-4 md:px-8 relative group fade-in">
-          {isLoading ? (
+          {isLoading && !content ? (
             <div className="prose prose-invert max-w-none">...</div>
           ) : animate ? (
             <div className="relative">
-              <AnimatedMessage text={content} />
+              <AnimatedMessage text={content} isStreaming={isLoading} />
               <button
                 onClick={copyToClipboard}
                 className="absolute top-0 right-0 p-1.5 rounded-md bg-gray-700 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-600"
