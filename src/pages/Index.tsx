@@ -3,7 +3,7 @@ import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
 import TypingIndicator from "@/components/TypingIndicator";
 import { useChat } from "@/contexts/ChatContext";
-import { useModel } from "@/contexts/ModelContext";
+import { useModel } from "@/contexts";
 import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";

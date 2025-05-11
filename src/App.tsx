@@ -1,30 +1,30 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import { ChatProvider } from "./contexts/ChatContext";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Index from './pages/Index';
+import { ChatProvider, ModelProvider } from './contexts';
+import { Toaster } from './components/ui/sonner';
+import { OpenRouterTest } from './components/OpenRouterTest';
+import './App.css';
+import './components/ui/command-fixes.css';
+import { AVAILABLE_MODELS } from './types/chat';
 
-const queryClient = new QueryClient();
+// Debug: Ensure models are loaded
+console.log("App initialization - Available models:", 
+  AVAILABLE_MODELS.map(m => `${m.name} (${m.provider})`));
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+function App() {
+  return (
+    <Router>
       <ChatProvider>
-        <BrowserRouter>
+        <ModelProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="/test-openrouter" element={<OpenRouterTest />} />
           </Routes>
-        </BrowserRouter>
+          <Toaster />
+        </ModelProvider>
       </ChatProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </Router>
+  );
+}
 
 export default App;
