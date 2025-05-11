@@ -365,10 +365,10 @@ const Index = () => {
           <div className="flex items-center justify-between h-14 px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="rounded-md h-9 w-9 text-gray-300 hover:bg-[#1E293B] lg:hidden"
+                className="rounded-md h-10 w-10 text-gray-300 hover:bg-[#1E293B] lg:hidden flex items-center justify-center border border-[#2D3748] bg-[#111827]"
               >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>

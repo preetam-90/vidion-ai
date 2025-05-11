@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { useChat } from "../contexts/ChatContext";
 import { Chat } from "../types/chat";
 import { formatDistanceToNow } from "date-fns";
-import { PlusIcon, MessageSquareIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { PlusIcon, MessageSquareIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, Menu } from "lucide-react";
 import { useClickOutside } from "../hooks/useClickOutside";
 
 interface SidebarProps {
@@ -58,20 +58,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   return (
     <div
       ref={sidebarRef}
-      className={`fixed lg:relative inset-y-0 left-0 z-50 bg-[#0D1117] transform transition-all duration-300 ease-in-out ${
-        isOpen 
+      className={`fixed inset-y-0 left-0 z-50 bg-[#0D1117] transform transition-all duration-300 ease-in-out 
+        ${isOpen 
           ? "translate-x-0 w-[280px] sm:w-[300px]" 
-          : "translate-x-0 w-[50px] sm:w-[60px]"
-      } ${isOpen ? 'lg:w-[300px]' : 'lg:w-[70px]'} h-full flex flex-col shadow-lg border-r border-[#1E293B]`}
+          : "translate-x-[-100%] lg:translate-x-0 w-[70px]"
+        } 
+        ${!isOpen && "lg:flex hidden"}
+        h-full flex flex-col shadow-lg border-r border-[#1E293B]`}
     >
       <div className="flex flex-col h-full max-h-screen overflow-hidden">
-        {/* In collapsed mode, show the vertical bar with buttons */}
+        {/* In collapsed mode, show the vertical bar with buttons - DESKTOP ONLY */}
         {!isOpen && (
           <div className="flex flex-col items-center space-y-5 pt-6">
             {/* First button: Expand sidebar */}
             <button 
               ref={toggleBtnRef}
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsOpen(true)}
               className="flex items-center justify-center w-10 h-10 bg-[#111827] rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
               aria-label="Expand sidebar"
             >
@@ -96,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               <h1 className="text-lg font-semibold text-white">Chats</h1>
               <button 
                 ref={toggleBtnRef}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpen(false)}
                 className="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:bg-[#111827] hover:text-gray-300 transition-colors"
                 aria-label="Collapse sidebar"
               >
