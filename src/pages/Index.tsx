@@ -3,14 +3,17 @@ import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
 import TypingIndicator from "@/components/TypingIndicator";
 import { useChat } from "@/contexts/ChatContext";
+import { useModel } from "@/contexts/ModelContext";
+import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";
-import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, Mic } from "lucide-react";
+import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Message, MessageRole } from "@/types/chat";
+import { Message, MessageRole, Model } from "@/types/chat";
 
 const Index = () => {
   const { currentChat, addMessageToChat, createNewChat } = useChat();
+  const { model, setModel } = useModel();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,10 +23,10 @@ const Index = () => {
   // Set initial sidebar state based on screen size
   useEffect(() => {
     const checkScreenSize = () => {
-      if (window.innerWidth >= 768) {
+      if (window.innerWidth >= 1024) { // Changed from 768 to 1024 for larger screens
         setSidebarOpen(true); // Open by default on desktop
       } else {
-        setSidebarOpen(false); // Closed by default on mobile
+        setSidebarOpen(false); // Closed by default on mobile/tablet
       }
     };
 
@@ -54,6 +57,19 @@ const Index = () => {
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
 
+  // Handle model change
+  const handleModelChange = (newModel: Model) => {
+    try {
+      console.log("Changing model to:", newModel.name);
+      setModel(newModel);
+    } catch (error) {
+      console.error("Error changing model:", error);
+      toast.error("Error changing model", {
+        description: "Please try again later"
+      });
+    }
+  };
+
   const sendMessage = async (content: string) => {
     if (!currentChat) {
       toast.error("No active chat", {
@@ -70,21 +86,13 @@ const Index = () => {
       setIsLoading(true);
       setError(null);
       
-      // Call Vidion AI API
-      const apiKey = "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";
-      
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "llama3-8b-8192",
-          messages: [
-            {
-              role: "system",
-              content: `You are Vidion AI, developed by Preetam. Follow these guidelines:
+      // Log the current model being used
+      console.log("Sending message using model:", model.name, model.provider, model.modelId);
+
+      // Prepare common request parts
+      const systemMessage = {
+        role: "system",
+        content: `You are Vidion AI, developed by Preetam. Follow these guidelines:
 
 1. IDENTITY: You are Vidion AI. NEVER start responses with "I am Vidion AI" or similar introductions. 
    ALWAYS end your responses with "I am Vidion AI, developed by Preetam." as a signature.
@@ -126,32 +134,197 @@ const Index = () => {
    - Decline discussing self-harm, illegal activities, or harmful content
    - For medical questions, remind users you're not a qualified medical professional
    - For legal advice, remind users to consult a qualified legal professional`
-            },
+      };
+
+      let requestHeaders: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
+      // Initialize request body with proper typing
+      let requestBody: {
+        model?: string;
+        messages?: any[];
+        temperature?: number;
+        max_tokens?: number;
+        stream?: boolean;
+      } = {};
+      
+      // Configure API call based on model provider
+      if (model.provider === "groq") {
+        // Groq API
+        const apiKey = "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";
+        requestHeaders = {
+          ...requestHeaders,
+          "Authorization": `Bearer ${apiKey}`
+        };
+        
+        requestBody = {
+          model: model.modelId,
+          messages: [
+            systemMessage,
             ...currentChat.messages.filter(msg => msg.role !== "system"),
             userMessage
           ],
           temperature: 0.7,
           max_tokens: 1000
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Failed to get response from Vidion AI API");
+        };
+      } else if (model.provider === "openrouter") {
+        // OpenRouter API
+        const apiKey = "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";
+        console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
+        requestHeaders = {
+          ...requestHeaders,
+          "Authorization": `Bearer ${apiKey}`,
+          "HTTP-Referer": "vidionai.vercel.app",
+          "X-Title": "Vidionai"
+        };
+        
+        // Simplified format - bare minimum for compatibility
+        requestBody = {
+          model: model.modelId,
+          messages: [
+            // Include system message for Vidion AI identity
+            systemMessage,
+            // Include the user message
+            { 
+              role: "user", 
+              content: userMessage.content 
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+          stream: false
+        };
+        
+        console.log("OpenRouter request:", {
+          endpoint: model.apiEndpoint,
+          model: model.modelId,
+          content: userMessage.content.substring(0, 30) + "...",
+          headers: Object.keys(requestHeaders)
+        });
       }
 
-      const data = await response.json();
-      const assistantMessage = data.choices[0].message;
+      console.log("Sending request to API:", model.apiEndpoint);
       
-      // Add assistant response
-      const assistantResponseMessage: Message = {
-        role: "assistant" as MessageRole,
-        content: assistantMessage.content
-      };
-      addMessageToChat(currentChat.id, assistantResponseMessage);
+      try {
+        // Add timeout handling for API calls
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
+        let response;
+        try {
+          response = await fetch(model.apiEndpoint, {
+            method: "POST",
+            headers: requestHeaders,
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+          });
+        } catch (err: any) {
+          if (err.name === "AbortError") {
+            throw new Error("Request timed out after 10 seconds");
+          }
+          throw err;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
+        console.log("API response status:", response.status);
+        
+        if (!response.ok) {
+          let errorMessage = `Failed to get response from ${model.name} (Status: ${response.status})`;
+          try {
+            const errorData = await response.json();
+            console.error("API error:", errorData);
+            errorMessage = errorData.error?.message || errorMessage;
+          } catch (jsonError) {
+            console.error("Error parsing error response:", jsonError);
+          }
+          throw new Error(errorMessage);
+        }
+
+        // Try to log the response headers
+        console.log("Response headers:", 
+          Array.from(response.headers.entries())
+            .map(([k, v]) => `${k}: ${v.substring(0, 50)}${v.length > 50 ? '...' : ''}`)
+        );
+
+        const data = await response.json();
+        console.log("API response data:", JSON.stringify(data).substring(0, 200) + "...");
+        
+        let responseContent = "";
+        // Handle different API response formats
+        if (data.choices && data.choices[0]) {
+          if (data.choices[0].message) {
+            responseContent = data.choices[0].message.content;
+            console.log("Using message.content format, found content:", 
+              responseContent.substring(0, 50) + "...");
+          } else if (data.choices[0].text) {
+            responseContent = data.choices[0].text;
+            console.log("Using text format, found content:", 
+              responseContent.substring(0, 50) + "...");
+          } else {
+            // Try to find content in the response structure
+            console.log("Standard response formats not found, trying alternatives");
+            const firstChoice = data.choices[0];
+            
+            if (typeof firstChoice === 'object' && firstChoice !== null) {
+              // Search for string content in the first choice
+              Object.entries(firstChoice).forEach(([key, value]) => {
+                if (typeof value === 'string' && value.length > 20) {
+                  console.log(`Found potential content in '${key}' field`);
+                  responseContent = value;
+                } else if (typeof value === 'object' && value !== null) {
+                  // Look for content field in nested objects
+                  const objValue = value as Record<string, any>;
+                  if (objValue.content && typeof objValue.content === 'string') {
+                    console.log(`Found content in ${key}.content field`);
+                    responseContent = objValue.content;
+                  }
+                }
+              });
+            }
+          }
+        } else if (data.response && typeof data.response === 'string') {
+          // Some APIs return a direct response field
+          responseContent = data.response;
+          console.log("Using response field format");
+        }
+        
+        if (!responseContent) {
+          // Last resort: Look at top-level string fields
+          Object.entries(data).forEach(([key, value]) => {
+            if (typeof value === 'string' && value.length > 20) {
+              console.log(`Found potential top-level content in ${key} field`);
+              responseContent = value;
+            }
+          });
+        }
+        
+        if (!responseContent) {
+          console.error("No response content found in API response:", data);
+          throw new Error("No response content found in API response");
+        }
+        
+        // Add assistant response
+        const assistantResponseMessage: Message = {
+          role: "assistant" as MessageRole,
+          content: responseContent
+        };
+        addMessageToChat(currentChat.id, assistantResponseMessage);
+      } catch (apiError) {
+        console.error("API request error:", apiError);
+        throw apiError;
+      }
     } catch (err) {
       console.error("Error sending message:", err);
       setError(err instanceof Error ? err.message : "An unknown error occurred");
+      
+      // Add a user-friendly error message to the chat
+      const errorMessage: Message = {
+        role: "assistant" as MessageRole,
+        content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : "Unknown error"}. Please try again or switch to another model.`
+      };
+      addMessageToChat(currentChat.id, errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -171,107 +344,126 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0f1117]">
-      {/* Mobile backdrop overlay */}
-      {sidebarOpen && (
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0A0E17]">
+      {/* Mobile overlay when sidebar is open */}
+      {sidebarOpen && window.innerWidth < 1024 && (
         <div 
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity fade-in"
+          className="fixed inset-0 bg-black/70 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
         />
       )}
       
+      {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      
-      <div className="flex flex-col flex-1 h-screen max-h-screen overflow-hidden relative">
-        {/* Mobile header */}
-        <div className="border-b border-gray-800 bg-[#111218] py-3 px-4 md:hidden flex items-center gap-3">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-gray-300 focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex-1 truncate text-white font-medium">
-            {currentChat?.title || "New Chat"}
-          </div>
-          <button
-            onClick={handleCreateNewChat}
-            className="text-gray-300 focus:outline-none"
-            aria-label="New chat"
-          >
-            <PlusCircle className="h-5 w-5" />
-          </button>
-        </div>
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="pb-32 pt-4 md:pt-10 max-w-3xl mx-auto w-full">
-            {!currentChat || messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-start h-[calc(100vh-250px)] pt-8 md:pt-16 md:justify-center">
-                <h2 className="text-2xl md:text-4xl font-medium mb-4 text-white text-center px-6">
-                  Hey, what's on your mind today?
-                </h2>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col h-full relative">
+        {/* Header */}
+        <header className="shrink-0 border-b border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky top-0 z-10">
+          <div className="flex items-center justify-between h-14 px-3 sm:px-4">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="rounded-md h-9 w-9 text-gray-300 hover:bg-[#1E293B] lg:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+              <div className="text-xl font-semibold tracking-tight hidden sm:block text-white">Vidion AI</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <SimpleModelSelector 
+                selectedModel={model} 
+                onModelChange={handleModelChange} 
+                className="w-44 hidden sm:flex"
+              />
+              <div className="flex sm:hidden">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => createNewChat()}
+                  className="rounded-md h-9 w-9 border-[#2D3748] bg-[#111827] text-gray-300 hover:bg-[#1E293B]"
+                >
+                  <PlusCircle className="h-5 w-5" />
+                  <span className="sr-only">New chat</span>
+                </Button>
               </div>
-            ) : (
-              <>
-                {messages.map((message, index) => (
-                  <ChatMessage
-                    key={`${currentChat.id}-${index}`}
-                    role={message.role}
-                    content={message.content}
-                    animate={message.role === "assistant"}
-                  />
-                ))}
-                {isLoading && <TypingIndicator />}
-              </>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </main>
-
-        <div className="absolute left-0 right-0 bottom-0 bg-[#0f1117] bg-opacity-80 backdrop-blur-sm w-full">
-          <div className="max-w-2xl mx-auto px-4 py-3 md:py-4 md:px-8 md:py-6">
-            <form onSubmit={handleSubmit} className="relative">
-              <div className="flex items-center rounded-lg border border-gray-700 bg-[#1a1c22] shadow-lg">
-                <div className="flex-1 px-3 py-2 md:py-3">
-                  <textarea
-                    className="w-full bg-transparent border-0 focus:ring-0 text-white resize-none max-h-[80px] placeholder-gray-400 outline-none text-sm md:text-base"
-                    placeholder="Message Vidion AI"
-                    rows={1}
-                    value={inputValue}
-                    onChange={(e) => {
-                      setInputValue(e.target.value);
-                      e.target.style.height = 'auto';
-                      e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit(e);
-                      }
-                    }}
-                  />
-                </div>
-                <div className="pr-3 flex">
-                  <button
-                    type="submit"
-                    className="p-1.5 md:p-2 rounded-md text-gray-400 hover:bg-gray-700"
-                    disabled={!inputValue.trim()}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rotate-90 md:w-5 md:h-5">
-                      <path d="M12 5V19M12 5L6 11M12 5L18 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </form>
-            
-            <div className="mt-1 md:mt-2 text-center text-[10px] md:text-xs text-gray-500">
-              Vidion AI may produce inaccurate information about people, places, or facts.
             </div>
           </div>
-        </div>
+        </header>
+
+        {/* Main chat area */}
+        <main className="flex-1 overflow-y-auto">
+          {currentChat ? (
+            messages.length > 0 ? (
+              <div>
+                {messages.map((message, i) => (
+                  <ChatMessage
+                    key={i}
+                    role={message.role}
+                    content={message.content}
+                  />
+                ))}
+                {isLoading && (
+                  <div className="py-2 px-4 max-w-4xl mx-auto">
+                    <TypingIndicator />
+                  </div>
+                )}
+                <div ref={messagesEndRef} className="h-32" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] px-4">
+                <div className="max-w-md mx-auto text-center space-y-6">
+                  <div className="flex justify-center">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/10">
+                      <Image className="h-10 w-10 text-indigo-500" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <h1 className="text-xl font-semibold sm:text-2xl text-white">
+                      Welcome to Vidion AI
+                    </h1>
+                    <p className="text-gray-400">
+                      Start a conversation, ask questions, or get assistance with your tasks.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] px-4">
+              <div className="max-w-md mx-auto text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/10">
+                    <BarChart2 className="h-10 w-10 text-indigo-500" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h1 className="text-xl font-semibold sm:text-2xl text-white">
+                    No active chat
+                  </h1>
+                  <p className="text-gray-400">
+                    Create a new chat to get started.
+                  </p>
+                  <Button onClick={handleCreateNewChat} className="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white border-0">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    New Chat
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* Input area - footer */}
+        <footer className="shrink-0 border-t border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky bottom-0 w-full z-10 py-3 sm:py-4 px-3 sm:px-4">
+          <ChatInput
+            onSend={sendMessage}
+            disabled={isLoading || !currentChat}
+          />
+        </footer>
       </div>
     </div>
   );
