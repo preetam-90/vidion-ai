@@ -44,7 +44,7 @@ const OPENROUTER_QWEN: Model = {
   name: "Qwen 23.5B (OpenRouter)",
   provider: "openrouter",
   apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "qwen/qwen3-235b06d21fe677c6017bece6e54b6e429e45dfeada591c25958dfcf6846225"
+  modelId: "qwen/qwen3-235b-a22b"
 };
 
 // Export the models array

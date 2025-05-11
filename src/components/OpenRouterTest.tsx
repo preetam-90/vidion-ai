@@ -62,7 +62,7 @@ export function OpenRouterTest() {
 
       // Updated request with Vidion AI identity
       const requestBody = {
-        model: "qwen/qwen3-235b06d21fe677c6017bece6e54b6e429e45dfeada591c25958dfcf6846225",
+        model: "qwen/qwen3-235b-a22b",
         messages: [
           systemMessage,
           { 
