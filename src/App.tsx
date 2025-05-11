@@ -4,7 +4,6 @@ import { ChatProvider, ModelProvider } from './contexts';
 import { Toaster } from './components/ui/sonner';
 import { OpenRouterTest } from './components/OpenRouterTest';
 import './App.css';
-import './components/ui/command-fixes.css';
 import { AVAILABLE_MODELS } from './types/chat';
 
 // Debug: Ensure models are loaded
