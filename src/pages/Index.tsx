@@ -353,14 +353,16 @@ const Index = () => {
         />
       )}
       
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      {/* Sidebar - always visible on desktop */}
+      <div className="flex-shrink-0">
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col h-full relative">
+      {/* Main content - optimized for desktop */}
+      <div className="flex-1 flex flex-col h-full relative max-w-[1200px] mx-auto">
         {/* Header */}
         <header className="shrink-0 border-b border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center justify-between h-14 px-3 sm:px-4">
+          <div className="flex items-center justify-between h-14 px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -371,25 +373,23 @@ const Index = () => {
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
-              <div className="text-xl font-semibold tracking-tight hidden sm:block text-white">Vidion AI</div>
+              <div className="text-xl font-semibold tracking-tight text-white">Vidion AI</div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <SimpleModelSelector 
                 selectedModel={model} 
                 onModelChange={handleModelChange} 
-                className="w-44 hidden sm:flex"
+                className="w-52"
               />
-              <div className="flex sm:hidden">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => createNewChat()}
-                  className="rounded-md h-9 w-9 border-[#2D3748] bg-[#111827] text-gray-300 hover:bg-[#1E293B]"
-                >
-                  <PlusCircle className="h-5 w-5" />
-                  <span className="sr-only">New chat</span>
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => createNewChat()}
+                className="rounded-md h-9 w-9 border-[#2D3748] bg-[#111827] text-gray-300 hover:bg-[#1E293B] hidden sm:flex"
+              >
+                <PlusCircle className="h-5 w-5" />
+                <span className="sr-only">New chat</span>
+              </Button>
             </div>
           </div>
         </header>
@@ -398,7 +398,7 @@ const Index = () => {
         <main className="flex-1 overflow-y-auto">
           {currentChat ? (
             messages.length > 0 ? (
-              <div>
+              <div className="mx-auto max-w-3xl">
                 {messages.map((message, i) => (
                   <ChatMessage
                     key={i}
@@ -407,7 +407,7 @@ const Index = () => {
                   />
                 ))}
                 {isLoading && (
-                  <div className="py-2 px-4 max-w-4xl mx-auto">
+                  <div className="py-2 px-4">
                     <TypingIndicator />
                   </div>
                 )}
@@ -458,11 +458,13 @@ const Index = () => {
         </main>
 
         {/* Input area - footer */}
-        <footer className="shrink-0 border-t border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky bottom-0 w-full z-10 py-3 sm:py-4 px-3 sm:px-4">
-          <ChatInput
-            onSend={sendMessage}
-            disabled={isLoading || !currentChat}
-          />
+        <footer className="shrink-0 border-t border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky bottom-0 w-full z-10 py-4 px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto">
+            <ChatInput
+              onSend={sendMessage}
+              disabled={isLoading || !currentChat}
+            />
+          </div>
         </footer>
       </div>
     </div>

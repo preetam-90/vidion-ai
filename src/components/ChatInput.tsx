@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { Send } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Send, Mic, PaperclipIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -12,6 +11,7 @@ interface ChatInputProps {
 
 export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
   const [input, setInput] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +19,11 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
     
     onSend(input);
     setInput("");
+    
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -28,34 +33,66 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
     }
   };
 
+  // Auto-resize textarea based on content
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    setInput(textarea.value);
+    
+    // Auto resize
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  };
+
   return (
-    <form 
-      onSubmit={handleSubmit}
-      className="border-t border-border bg-background/80 backdrop-blur-md sticky bottom-0 w-full p-4 flex"
-    >
-      <div className="relative flex items-center w-full max-w-4xl mx-auto">
-        <Textarea
-          className={cn(
-            "resize-none pr-12 py-3 max-h-32 bg-secondary/50",
-            disabled && "opacity-50"
-          )}
-          placeholder="Send a message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={1}
-          disabled={disabled}
-        />
-        <Button 
-          type="submit"
-          size="icon" 
-          className="absolute right-2"
-          disabled={!input.trim() || disabled}
-        >
-          <Send className="h-4 w-4" />
-          <span className="sr-only">Send</span>
-        </Button>
-      </div>
-    </form>
+    <div className="w-full">
+      <form 
+        onSubmit={handleSubmit}
+        className="relative w-full"
+      >
+        <div className="flex items-center w-full bg-[#111827] rounded-lg border border-[#2D3748] focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/50">
+          <div className="flex-1 relative">
+            <Textarea
+              ref={textareaRef}
+              className={cn(
+                "resize-none min-h-[52px] max-h-[120px] py-3.5 px-4 pr-24 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-[#E2E8F0] placeholder-gray-500 text-[15px]",
+                disabled && "opacity-50"
+              )}
+              placeholder="Message Vidion AI..."
+              value={input}
+              onChange={handleInput}
+              onKeyDown={handleKeyDown}
+              rows={1}
+              disabled={disabled}
+            />
+            
+            <div className="absolute right-3 bottom-2.5 flex items-center gap-2">
+              <Button 
+                type="button" 
+                size="icon" 
+                variant="ghost" 
+                className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+                disabled={disabled}
+              >
+                <Mic className="h-4.5 w-4.5" />
+                <span className="sr-only">Voice input</span>
+              </Button>
+              
+              <Button 
+                type="submit"
+                size="icon" 
+                className={cn(
+                  "rounded-full size-10 bg-indigo-600 hover:bg-indigo-700 text-white",
+                  (!input.trim() || disabled) && "opacity-50 cursor-not-allowed"
+                )}
+                disabled={!input.trim() || disabled}
+              >
+                <Send className="h-4.5 w-4.5" />
+                <span className="sr-only">Send</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 };
