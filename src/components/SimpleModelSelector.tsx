@@ -29,12 +29,6 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
     setIsOpen(false);
   };
 
-  // Ensure OpenRouter Qwen model is included
-  const openRouterQwenModel = availableModels.find(m => m.id === "openrouter-qwen");
-  const hasOpenRouterQwen = Boolean(openRouterQwenModel);
-
-  console.log("Has OpenRouter Qwen model:", hasOpenRouterQwen);
-
   return (
     <div className={cn("relative", className)}>
       {/* Clickable button */}

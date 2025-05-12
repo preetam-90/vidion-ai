@@ -31,25 +31,16 @@ const GROQ_LLAMA3_8B: Model = {
   modelId: "llama3-8b-8192"
 };
 
-const GROQ_LLAMA3_70B: Model = {
-  id: "groq-llama3-70b",
-  name: "Llama 3 70B (Groq)",
-  provider: "groq",
-  apiEndpoint: "https://api.groq.com/openai/v1/chat/completions",
-  modelId: "llama3-70b-8192"
-};
-
-const OPENROUTER_QWEN: Model = {
-  id: "openrouter-qwen",
-  name: "Qwen 23.5B (OpenRouter)",
+const OPENROUTER_MERCURY: Model = {
+  id: "openrouter-mercury",
+  name: "Mercury DLLM (OpenRouter)",
   provider: "openrouter",
   apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "qwen/qwen3-235b-a22b"
+  modelId: "inception/mercury-coder-small-beta"
 };
 
 // Export the models array
 export const AVAILABLE_MODELS: Model[] = [
   GROQ_LLAMA3_8B,
-  GROQ_LLAMA3_70B,
-  OPENROUTER_QWEN
+  OPENROUTER_MERCURY
 ]; 

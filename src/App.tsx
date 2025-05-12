@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from './pages/Index';
 import { ChatProvider, ModelProvider } from './contexts';
 import { Toaster } from './components/ui/sonner';
-import { OpenRouterTest } from './components/OpenRouterTest';
+import OpenRouterTest from './components/OpenRouterTest';
 import './App.css';
 import { AVAILABLE_MODELS } from './types/chat';
 

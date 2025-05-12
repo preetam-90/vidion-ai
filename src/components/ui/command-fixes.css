@@ -1,0 +1,37 @@
+/* Command menu dark mode overrides */
+.dark [cmdk-root],
+[cmdk-root] {
+  @apply bg-gray-800 text-white;
+}
+
+.dark [cmdk-input],
+[cmdk-input] {
+  @apply bg-gray-800 text-white border-gray-700;
+}
+
+.dark [cmdk-item],
+[cmdk-item] {
+  @apply text-white;
+}
+
+.dark [cmdk-item][data-selected="true"],
+[cmdk-item][data-selected="true"] {
+  @apply bg-gray-700;
+}
+
+.dark [cmdk-group-heading],
+[cmdk-group-heading] {
+  @apply text-gray-400;
+}
+
+/* Popover dark mode fixes */
+.dark .popover-content,
+.popover-content {
+  @apply bg-gray-800 text-white border-gray-700;
+}
+
+/* Ensure the command component is visible */
+.command-dialog {
+  z-index: 50;
+  position: relative;
+} 

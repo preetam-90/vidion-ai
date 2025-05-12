@@ -11,6 +11,14 @@ import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, 
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model } from "@/types/chat";
 
+const OPENROUTER_MERCURY: Model = {
+  id: "openrouter-mercury",
+  name: "Mercury DLLM (OpenRouter)",
+  provider: "openrouter",
+  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+  modelId: "inception/mercury-coder-small-beta"
+};
+
 const Index = () => {
   const { currentChat, addMessageToChat, createNewChat } = useChat();
   const { model, setModel } = useModel();
@@ -170,7 +178,7 @@ const Index = () => {
         };
       } else if (model.provider === "openrouter") {
         // OpenRouter API
-        const apiKey = "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";
+        const apiKey = "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";
         console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
         requestHeaders = {
           ...requestHeaders,
@@ -179,13 +187,10 @@ const Index = () => {
           "X-Title": "Vidionai"
         };
         
-        // Simplified format - bare minimum for compatibility
         requestBody = {
           model: model.modelId,
           messages: [
-            // Include system message for Vidion AI identity
             systemMessage,
-            // Include the user message
             { 
               role: "user", 
               content: userMessage.content 

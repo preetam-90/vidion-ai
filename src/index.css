@@ -56,69 +56,176 @@
   * {
     @apply border-border;
   }
+  
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    background-color: #0A0E17;
+    color: #E2E8F0;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  #root {
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* Better link colors */
+  a {
+    @apply text-indigo-400 hover:text-indigo-300;
+  }
+  
+  /* Custom prose (markdown) styles */
+  .prose {
+    @apply text-[#E2E8F0] max-w-none;
+  }
+  
+  .prose strong {
+    @apply text-white;
+  }
+  
+  .prose a {
+    @apply text-indigo-400 hover:text-indigo-300 no-underline hover:underline;
+  }
+  
+  .prose h1, 
+  .prose h2, 
+  .prose h3, 
+  .prose h4 {
+    @apply text-white font-semibold;
+  }
+  
+  .prose p {
+    @apply my-2;
+  }
+  
+  .prose code {
+    @apply bg-[#111827] px-1.5 py-0.5 rounded text-[#E2E8F0] text-sm font-normal;
+  }
+  
+  .prose pre {
+    @apply bg-[#111827] border border-[#2D3748] text-[#E2E8F0] rounded-md overflow-x-auto;
+  }
+  
+  .prose pre code {
+    @apply bg-transparent p-0 text-sm;
+  }
+  
+  .prose ul, 
+  .prose ol {
+    @apply pl-6 my-2;
+  }
+  
+  .prose li {
+    @apply my-1;
+  }
+  
+  .prose blockquote {
+    @apply border-l-4 border-[#2D3748] pl-4 text-gray-400;
+  }
+  
+  /* Mobile-specific adjustments */
+  @media (max-width: 640px) {
+    body {
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Adjust text size for better mobile experience */
+    .prose {
+      font-size: 0.9375rem;
+    }
+    
+    .prose pre {
+      @apply text-sm;
+    }
   }
   
   /* Custom scrollbar styling */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   ::-webkit-scrollbar-track {
-    background: hsl(var(--secondary));
-    border-radius: 4px;
+    background: transparent;
   }
   
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted));
-    border-radius: 4px;
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 3px;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground));
+    background: rgba(156, 163, 175, 0.5);
   }
   
   /* Hide scrollbar for mobile */
   @media (max-width: 768px) {
     ::-webkit-scrollbar {
       width: 4px;
+      height: 4px;
+    }
+  }
+  
+  /* Prevent iOS text size adjustment without disabling user zoom */
+  @media screen and (max-width: 1024px) {
+    * {
+      -webkit-text-size-adjust: none;
     }
   }
 }
 
+@layer components {
+  /* Button variants */
+  .btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-700 text-white;
+  }
+  
+  .btn-secondary {
+    @apply bg-[#1E293B] hover:bg-[#2D3748] text-white;
+  }
+  
+  .btn-outline {
+    @apply border border-[#2D3748] bg-transparent hover:bg-[#111827] text-gray-300;
+  }
+  
+  /* Message bubble styles */
+  .message-user {
+    @apply bg-[#111827] text-[#E2E8F0];
+  }
+  
+  .message-ai {
+    @apply bg-transparent text-[#E2E8F0];
+  }
+}
+
 @layer utilities {
-  .text-gradient {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500;
+  /* Responsive utilities */
+  .mobile-container {
+    @apply px-3 sm:px-4 md:px-6;
   }
   
-  .text-gradient-primary {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-500;
-  }
-  
-  .scrollbar-thin {
-    scrollbar-width: thin;
-  }
-  
-  .scrollbar-none {
-    scrollbar-width: none;
-  }
-  
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
+  .desktop-container {
+    @apply max-w-7xl mx-auto px-3 sm:px-4 lg:px-6;
   }
   
   /* Animation utilities */
-  .transition-all-medium {
-    transition: all var(--transition-medium) ease-in-out;
+  .transition-colors {
+    transition: all 200ms ease-in-out;
   }
   
-  .transition-transform-medium {
-    transition: transform var(--transition-medium) ease-in-out;
+  .transition-transform {
+    transition: transform 200ms ease-in-out;
   }
   
-  .transition-opacity-medium {
-    transition: opacity var(--transition-medium) ease-in-out;
+  .transition-opacity {
+    transition: opacity 200ms ease-in-out;
   }
   
   .scale-in {
@@ -148,4 +255,47 @@
       opacity: 1;
     }
   }
+  
+  /* For cursor blink effect */
+  .cursor-blink {
+    animation: blink 0.8s ease-in-out infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  /* Mobile safe area insets */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Hide scrollbar utility */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Thin scrollbar utility */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
 }
+
