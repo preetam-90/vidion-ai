@@ -1,24 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useRef } from "react";
-import { Send, Mic, Plus, Globe, Lightbulb, Sparkles, ImageIcon, MoreHorizontal } from "lucide-react";
+import { Send, Mic, Plus, Globe, Lightbulb, Sparkles, ImageIcon, MoreHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FileUploader } from "./FileUploader";
+import { FilePreview } from "./FilePreview";
 
 interface ChatInputProps {
-  onSend: (message: string, modelOverride?: string) => void;
+  onSend: (message: string, modelOverride?: string, files?: File[]) => void;
   disabled?: boolean;
 }
 
-type ActiveButtonType = 'none' | 'search' | 'reason' | 'research' | 'image';
+type ActiveButtonType = 'none' | 'search' | 'reason' | 'research' | 'image' | 'upload';
 
 export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
   const [input, setInput] = useState("");
   const [activeButton, setActiveButton] = useState<ActiveButtonType>('none');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [showUploader, setShowUploader] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if ((!input.trim() && selectedFiles.length === 0) || disabled) return;
     
     // Use the model based on activeButton
     let modelOverride = undefined;
@@ -30,8 +34,10 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
       modelOverride = 'mercury';
     }
     
-    onSend(input, modelOverride);
+    onSend(input, modelOverride, selectedFiles.length > 0 ? selectedFiles : undefined);
     setInput("");
+    setSelectedFiles([]);
+    setShowUploader(false);
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -69,6 +75,19 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
     alert("Image creation not implemented");
   };
 
+  const handleToggleUploader = () => {
+    setShowUploader(!showUploader);
+    setActiveButton(activeButton === 'upload' ? 'none' : 'upload');
+  };
+
+  const handleFilesSelected = (files: File[]) => {
+    setSelectedFiles(prevFiles => [...prevFiles, ...files]);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+  };
+
   // Get button styles based on active state
   const getButtonStyles = (buttonType: ActiveButtonType) => {
     const isActive = activeButton === buttonType;
@@ -92,10 +111,14 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
             type="button"
             size="icon"
             variant="ghost"
-            className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 flex-shrink-0"
+            className={cn(
+              "rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 flex-shrink-0",
+              activeButton === 'upload' && "bg-[#1E293B] text-indigo-400"
+            )}
+            onClick={handleToggleUploader}
           >
             <Plus className="h-5 w-5" />
-            <span className="sr-only">New chat</span>
+            <span className="sr-only">Upload files</span>
           </Button>
           
           <div className="flex items-center gap-3 overflow-x-auto flex-1 px-1 py-1" 
@@ -151,6 +174,27 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
           </Button>
         </div>
         
+        {/* File uploader */}
+        {showUploader && (
+          <div className="mb-3">
+            <FileUploader
+              onFilesSelected={handleFilesSelected}
+              disabled={disabled}
+              acceptedFileTypes="image/*,application/pdf,text/plain"
+              maxFileSize={10 * 1024 * 1024} // 10MB
+              maxFiles={5}
+            />
+          </div>
+        )}
+
+        {/* File preview */}
+        {selectedFiles.length > 0 && (
+          <FilePreview
+            files={selectedFiles}
+            onRemoveFile={handleRemoveFile}
+          />
+        )}
+        
         {/* Input area */}
         <div className="flex items-center w-full bg-[#111827] rounded-lg border border-[#2D3748] focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/50">
           <div className="flex-1 relative">
@@ -160,7 +204,7 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
                 "resize-none min-h-[52px] max-h-[120px] py-3.5 px-4 pr-16 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-[#E2E8F0] placeholder-gray-500 text-[15px]",
                 disabled && "opacity-50"
               )}
-              placeholder="Ask anything"
+              placeholder={selectedFiles.length > 0 ? "Add a message or send files directly" : "Ask anything"}
               value={input}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
@@ -184,9 +228,9 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
                 size="icon" 
                 className={cn(
                   "rounded-full size-10 bg-indigo-600 hover:bg-indigo-700 text-white",
-                  (!input.trim() || disabled) && "opacity-50 cursor-not-allowed"
+                  ((!input.trim() && selectedFiles.length === 0) || disabled) && "opacity-50 cursor-not-allowed"
                 )}
-                disabled={!input.trim() || disabled}
+                disabled={(!input.trim() && selectedFiles.length === 0) || disabled}
               >
                 <Send className="h-4.5 w-4.5" />
                 <span className="sr-only">Send</span>

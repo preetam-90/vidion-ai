@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { AnimatedMessage } from "./AnimatedMessage";
-import { Copy, Check, User } from "lucide-react";
-import { useState } from "react";
+import { Copy, Check, User, FileText, Image as ImageIcon, File, Paperclip } from "lucide-react";
+import { useState, useEffect } from "react";
 
 type MessageRole = "user" | "assistant" | "system";
 
@@ -20,12 +20,47 @@ export const ChatMessage = ({
 }: ChatMessageProps) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
+  const [fileAttachments, setFileAttachments] = useState<{name: string, type: string, size: string}[]>([]);
+
+  useEffect(() => {
+    // Parse file attachments from message if present
+    if (isUser && content.includes('Attached files:')) {
+      const attachmentSection = content.split('Attached files:')[1];
+      if (attachmentSection) {
+        const fileMatches = [...attachmentSection.matchAll(/\[File: (.*?), Type: (.*?), Size: (.*?) KB\]/g)];
+        setFileAttachments(
+          fileMatches.map(match => ({
+            name: match[1],
+            type: match[2],
+            size: match[3]
+          }))
+        );
+      }
+    }
+  }, [content, isUser]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(content).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     });
+  };
+
+  // Get display content (without the file attachment details)
+  const getDisplayContent = () => {
+    if (isUser && content.includes('Attached files:')) {
+      return content.split('Attached files:')[0].trim();
+    }
+    return content;
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.startsWith("image/")) {
+      return <ImageIcon className="h-4 w-4 text-blue-400" />;
+    } else if (fileType === "application/pdf") {
+      return <FileText className="h-4 w-4 text-red-400" />;
+    }
+    return <File className="h-4 w-4 text-gray-400" />;
   };
 
   return (
@@ -52,7 +87,30 @@ export const ChatMessage = ({
             {/* User message */}
             {isUser ? (
               <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-1.5 max-w-none break-words text-[#E2E8F0] text-[15px]">
-                {content}
+                {getDisplayContent()}
+                
+                {/* File attachments */}
+                {fileAttachments.length > 0 && (
+                  <div className="mt-3 border-t border-gray-700 pt-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+                      <Paperclip className="h-3.5 w-3.5" />
+                      <span>{fileAttachments.length} {fileAttachments.length === 1 ? 'file' : 'files'} attached</span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {fileAttachments.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-gray-800 text-xs text-gray-300"
+                        >
+                          {getFileIcon(file.type)}
+                          <span className="truncate max-w-[150px]">{file.name}</span>
+                          <span className="text-gray-500">({file.size} KB)</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               /* AI message */

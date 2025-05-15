@@ -11,6 +11,43 @@ import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, 
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model, AVAILABLE_MODELS } from "@/types/chat";
 
+// Helper function to read file contents as text
+const readFileAsText = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        // For certain file types, limit the content length
+        let content = event.target.result as string;
+        
+        // Limit content size for large files (e.g., 100KB max)
+        const MAX_CONTENT_SIZE = 100 * 1024; // 100KB
+        if (content.length > MAX_CONTENT_SIZE) {
+          content = content.substring(0, MAX_CONTENT_SIZE) + "... [Content truncated due to size]";
+        }
+        
+        resolve(content);
+      } else {
+        reject(new Error("Failed to read file"));
+      }
+    };
+    reader.onerror = () => reject(new Error("Error reading file"));
+    
+    // Read text files as text, others as data URLs
+    if (file.type === "text/plain" || file.type.startsWith("text/")) {
+      reader.readAsText(file);
+    } else if (file.type === "application/pdf") {
+      // For PDFs, we might just indicate it's a PDF rather than trying to extract text
+      resolve(`[PDF Document: ${file.name}]`);
+    } else if (file.type.startsWith("image/")) {
+      reader.readAsDataURL(file);
+    } else {
+      // For unsupported types, just return file info
+      resolve(`[Unsupported file type: ${file.type}]`);
+    }
+  });
+};
+
 const Index = () => {
   const { currentChat, addMessageToChat, createNewChat } = useChat();
   const { model, setModel } = useModel();
@@ -86,7 +123,7 @@ const Index = () => {
   };
 
   // Accept modelOverride from ChatInput
-  const sendMessage = async (content: string, modelOverride?: string) => {
+  const sendMessage = async (content: string, modelOverride?: string, files?: File[]) => {
     if (!currentChat) {
       toast.error("No active chat", {
         description: "Please create a new chat first"
@@ -97,8 +134,23 @@ const Index = () => {
     setModel(selectedModel);
     
     try {
-      // Add user message
-      const userMessage: Message = { role: "user" as MessageRole, content };
+      // Add user message with file info if provided
+      let messageContent = content;
+      
+      // If files are attached, add file info to the message
+      if (files && files.length > 0) {
+        // Create a message that includes file information
+        const fileInfo = files.map(file => `[File: ${file.name}, Type: ${file.type}, Size: ${(file.size / 1024).toFixed(1)} KB]`).join("\n");
+        
+        // If there's a text message, combine it with file info
+        if (content.trim()) {
+          messageContent = `${content}\n\nAttached files:\n${fileInfo}`;
+        } else {
+          messageContent = `Attached files:\n${fileInfo}`;
+        }
+      }
+      
+      const userMessage: Message = { role: "user" as MessageRole, content: messageContent };
       addMessageToChat(currentChat.id, userMessage);
       
       setIsLoading(true);
@@ -106,6 +158,26 @@ const Index = () => {
       
       // Log the current model being used
       console.log("Sending message using model:", selectedModel.name);
+
+      // Process files if any
+      let fileContents: string[] = [];
+      if (files && files.length > 0) {
+        // Read file contents
+        fileContents = await Promise.all(
+          files.map(async (file) => {
+            // For text files, read as text
+            if (file.type === "text/plain" || file.type === "application/pdf" || file.type.startsWith("text/")) {
+              return await readFileAsText(file);
+            }
+            // For images, we indicate that it's an image but don't include the binary data
+            else if (file.type.startsWith("image/")) {
+              return `[Image file: ${file.name}, Type: ${file.type}]`;
+            }
+            // For other file types
+            return `[Unsupported file: ${file.name}, Type: ${file.type}]`;
+          })
+        );
+      }
 
       // Prepare common request parts
       const systemMessage = {
@@ -176,10 +248,19 @@ const Index = () => {
           "Authorization": `Bearer ${apiKey}`
         };
         
+        // If files are present, add their contents to the system message
+        let enhancedSystemMessage = systemMessage;
+        if (files && files.length > 0 && fileContents.length > 0) {
+          enhancedSystemMessage = {
+            ...systemMessage,
+            content: `${systemMessage.content}\n\nThe user has attached the following files. Process these files and respond to the user's query:\n${fileContents.join("\n\n")}`
+          };
+        }
+        
         requestBody = {
           model: selectedModel.modelId,
           messages: [
-            systemMessage,
+            enhancedSystemMessage,
             ...currentChat.messages.filter(msg => msg.role !== "system"),
             userMessage
           ],
@@ -197,10 +278,19 @@ const Index = () => {
           "X-Title": "Vidionai"
         };
         
+        // If files are present, add their contents to the system message
+        let enhancedSystemMessage = systemMessage;
+        if (files && files.length > 0 && fileContents.length > 0) {
+          enhancedSystemMessage = {
+            ...systemMessage,
+            content: `${systemMessage.content}\n\nThe user has attached the following files. Process these files and respond to the user's query:\n${fileContents.join("\n\n")}`
+          };
+        }
+        
         requestBody = {
           model: selectedModel.modelId,
           messages: [
-            systemMessage,
+            enhancedSystemMessage,
             { 
               role: "user", 
               content: userMessage.content 
