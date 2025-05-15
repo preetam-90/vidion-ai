@@ -39,8 +39,17 @@ const OPENROUTER_MERCURY: Model = {
   modelId: "inception/mercury-coder-small-beta"
 };
 
+const OPENROUTER_SONAR: Model = {
+  id: "openrouter-sonar",
+  name: "Sonar Pro (Perplexity)",
+  provider: "openrouter",
+  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+  modelId: "perplexity/sonar-pro"
+};
+
 // Export the models array
 export const AVAILABLE_MODELS: Model[] = [
   GROQ_LLAMA3_8B,
-  OPENROUTER_MERCURY
+  OPENROUTER_MERCURY,
+  OPENROUTER_SONAR
 ]; 

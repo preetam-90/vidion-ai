@@ -11,14 +11,6 @@ import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, 
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model } from "@/types/chat";
 
-const OPENROUTER_MERCURY: Model = {
-  id: "openrouter-mercury",
-  name: "Mercury DLLM (OpenRouter)",
-  provider: "openrouter",
-  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "inception/mercury-coder-small-beta"
-};
-
 const Index = () => {
   const { currentChat, addMessageToChat, createNewChat } = useChat();
   const { model, setModel } = useModel();
@@ -178,7 +170,7 @@ const Index = () => {
         };
       } else if (model.provider === "openrouter") {
         // OpenRouter API
-        const apiKey = "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";
+        const apiKey = "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";
         console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
         requestHeaders = {
           ...requestHeaders,
