@@ -1,26 +1,37 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useRef } from "react";
-import { Send, Mic, PaperclipIcon } from "lucide-react";
+import { Send, Mic, Plus, Globe, Lightbulb, Sparkles, ImageIcon, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string, modelOverride?: string) => void;
   disabled?: boolean;
 }
 
+type ActiveButtonType = 'none' | 'search' | 'reason' | 'research' | 'image';
+
 export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
   const [input, setInput] = useState("");
+  const [activeButton, setActiveButton] = useState<ActiveButtonType>('none');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
     
-    onSend(input);
-    setInput("");
+    // Use the model based on activeButton
+    let modelOverride = undefined;
+    if (activeButton === 'search') {
+      modelOverride = 'perplexity';
+    } else if (activeButton === 'reason') {
+      modelOverride = 'groq-llama3';
+    } else if (activeButton === 'research') {
+      modelOverride = 'mercury';
+    }
     
-    // Reset textarea height
+    onSend(input, modelOverride);
+    setInput("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -33,31 +44,123 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
     }
   };
 
-  // Auto-resize textarea based on content
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
     setInput(textarea.value);
-    
-    // Auto resize
     textarea.style.height = "auto";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  };
+
+  // Handlers for different model options
+  const handleSearch = () => {
+    setActiveButton(activeButton === 'search' ? 'none' : 'search');
+  };
+
+  const handleReason = () => {
+    setActiveButton(activeButton === 'reason' ? 'none' : 'reason');
+  };
+
+  const handleDeepResearch = () => {
+    setActiveButton(activeButton === 'research' ? 'none' : 'research');
+  };
+
+  const handleCreateImage = () => {
+    setActiveButton(activeButton === 'image' ? 'none' : 'image');
+    alert("Image creation not implemented");
+  };
+
+  // Get button styles based on active state
+  const getButtonStyles = (buttonType: ActiveButtonType) => {
+    const isActive = activeButton === buttonType;
+    return cn(
+      "rounded-full px-4 py-2 h-9 flex items-center gap-1.5 flex-shrink-0 shadow-sm transition-all font-medium",
+      isActive 
+        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+        : "bg-[#202123] text-gray-200 hover:bg-[#303133] border-none"
+    );
   };
 
   return (
     <div className="w-full">
       <form 
         onSubmit={handleSubmit}
-        className="relative w-full"
+        className="relative w-full flex flex-col gap-3"
       >
+        {/* Action buttons row */}
+        <div className="flex items-center gap-2 px-1">
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 flex-shrink-0"
+          >
+            <Plus className="h-5 w-5" />
+            <span className="sr-only">New chat</span>
+          </Button>
+          
+          <div className="flex items-center gap-3 overflow-x-auto flex-1 px-1 py-1" 
+               style={{ 
+                 scrollbarWidth: 'thin',
+                 scrollbarColor: '#4B5563 transparent'
+               }}>
+            <Button
+              type="button"
+              className={getButtonStyles('search')}
+              onClick={handleSearch}
+            >
+              <Globe className="h-4 w-4" />
+              <span>Search</span>
+            </Button>
+            
+            <Button
+              type="button"
+              className={getButtonStyles('reason')}
+              onClick={handleReason}
+            >
+              <Lightbulb className="h-4 w-4" />
+              <span>Reason</span>
+            </Button>
+            
+            <Button
+              type="button"
+              className={getButtonStyles('research')}
+              onClick={handleDeepResearch}
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>Deep research</span>
+            </Button>
+            
+            <Button
+              type="button"
+              className={getButtonStyles('image')}
+              onClick={handleCreateImage}
+            >
+              <ImageIcon className="h-4 w-4" />
+              <span>Create image</span>
+            </Button>
+          </div>
+          
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="rounded-full size-9 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 flex-shrink-0"
+          >
+            <MoreHorizontal className="h-5 w-5" />
+            <span className="sr-only">More options</span>
+          </Button>
+        </div>
+        
+        {/* Input area */}
         <div className="flex items-center w-full bg-[#111827] rounded-lg border border-[#2D3748] focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/50">
           <div className="flex-1 relative">
             <Textarea
               ref={textareaRef}
               className={cn(
-                "resize-none min-h-[52px] max-h-[120px] py-3.5 px-4 pr-24 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-[#E2E8F0] placeholder-gray-500 text-[15px]",
+                "resize-none min-h-[52px] max-h-[120px] py-3.5 px-4 pr-16 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-[#E2E8F0] placeholder-gray-500 text-[15px]",
                 disabled && "opacity-50"
               )}
-              placeholder="Message Vidion AI..."
+              placeholder="Ask anything"
               value={input}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
@@ -69,8 +172,7 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
               <Button 
                 type="button" 
                 size="icon" 
-                variant="ghost" 
-                className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+                className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 bg-transparent"
                 disabled={disabled}
               >
                 <Mic className="h-4.5 w-4.5" />

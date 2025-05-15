@@ -9,7 +9,7 @@ import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";
 import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Message, MessageRole, Model } from "@/types/chat";
+import { Message, MessageRole, Model, AVAILABLE_MODELS } from "@/types/chat";
 
 const Index = () => {
   const { currentChat, addMessageToChat, createNewChat } = useChat();
@@ -57,6 +57,21 @@ const Index = () => {
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
 
+  // Helper to get model by override key
+  const getModelByOverride = (override?: string): Model => {
+    if (override === 'perplexity') {
+      return AVAILABLE_MODELS.find(m => m.id === 'openrouter-sonar') || model;
+    }
+    if (override === 'groq-llama3') {
+      return AVAILABLE_MODELS.find(m => m.id === 'groq-llama3-8b') || model;
+    }
+    // Default to mercury
+    if (override === 'mercury') {
+      return AVAILABLE_MODELS.find(m => m.id === 'openrouter-mercury') || model;
+    }
+    return model;
+  };
+
   // Handle model change
   const handleModelChange = (newModel: Model) => {
     try {
@@ -70,13 +85,16 @@ const Index = () => {
     }
   };
 
-  const sendMessage = async (content: string) => {
+  // Accept modelOverride from ChatInput
+  const sendMessage = async (content: string, modelOverride?: string) => {
     if (!currentChat) {
       toast.error("No active chat", {
         description: "Please create a new chat first"
       });
       return;
     }
+    const selectedModel = getModelByOverride(modelOverride);
+    setModel(selectedModel);
     
     try {
       // Add user message
@@ -87,7 +105,7 @@ const Index = () => {
       setError(null);
       
       // Log the current model being used
-      console.log("Sending message using model:", model.name, model.provider, model.modelId);
+      console.log("Sending message using model:", selectedModel.name);
 
       // Prepare common request parts
       const systemMessage = {
@@ -150,7 +168,7 @@ const Index = () => {
       } = {};
       
       // Configure API call based on model provider
-      if (model.provider === "groq") {
+      if (selectedModel.provider === "groq") {
         // Groq API
         const apiKey = "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";
         requestHeaders = {
@@ -159,7 +177,7 @@ const Index = () => {
         };
         
         requestBody = {
-          model: model.modelId,
+          model: selectedModel.modelId,
           messages: [
             systemMessage,
             ...currentChat.messages.filter(msg => msg.role !== "system"),
@@ -168,7 +186,7 @@ const Index = () => {
           temperature: 0.7,
           max_tokens: 1000
         };
-      } else if (model.provider === "openrouter") {
+      } else if (selectedModel.provider === "openrouter") {
         // OpenRouter API
         const apiKey = "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";
         console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
@@ -180,7 +198,7 @@ const Index = () => {
         };
         
         requestBody = {
-          model: model.modelId,
+          model: selectedModel.modelId,
           messages: [
             systemMessage,
             { 
@@ -194,14 +212,14 @@ const Index = () => {
         };
         
         console.log("OpenRouter request:", {
-          endpoint: model.apiEndpoint,
-          model: model.modelId,
+          endpoint: selectedModel.apiEndpoint,
+          model: selectedModel.modelId,
           content: userMessage.content.substring(0, 30) + "...",
           headers: Object.keys(requestHeaders)
         });
       }
 
-      console.log("Sending request to API:", model.apiEndpoint);
+      console.log("Sending request to API:", selectedModel.apiEndpoint);
       
       try {
         // Add timeout handling for API calls
@@ -210,7 +228,7 @@ const Index = () => {
         
         let response;
         try {
-          response = await fetch(model.apiEndpoint, {
+          response = await fetch(selectedModel.apiEndpoint, {
             method: "POST",
             headers: requestHeaders,
             body: JSON.stringify(requestBody),
@@ -228,7 +246,7 @@ const Index = () => {
         console.log("API response status:", response.status);
         
         if (!response.ok) {
-          let errorMessage = `Failed to get response from ${model.name} (Status: ${response.status})`;
+          let errorMessage = `Failed to get response from ${selectedModel.name} (Status: ${response.status})`;
           try {
             const errorData = await response.json();
             console.error("API error:", errorData);
