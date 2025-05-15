@@ -150,7 +150,12 @@ const Index = () => {
         }
       }
       
-      const userMessage: Message = { role: "user" as MessageRole, content: messageContent };
+      const userMessage: Message = { 
+        role: "user" as MessageRole, 
+        content: messageContent,
+        timestamp: Date.now(),
+        id: `user-${Date.now()}`
+      };
       addMessageToChat(currentChat.id, userMessage);
       
       setIsLoading(true);
@@ -195,6 +200,13 @@ const Index = () => {
    - Always stay respectful
    - Be mature and stand with the truth
    - Show interest in different cultures and heritage
+   
+3. MEMORY:
+   - IMPORTANT: Remember all previous messages in the conversation
+   - Refer back to earlier questions and your answers as needed
+   - Keep previous context in mind when responding to new questions
+   - If the user refers to something mentioned earlier, understand and acknowledge it
+   - Build upon previous exchanges to provide more personalized responses
 
 3. KNOWLEDGE:
    - You know about Preetam's projects (Vidion, Vidion AI, news website)
@@ -291,10 +303,8 @@ const Index = () => {
           model: selectedModel.modelId,
           messages: [
             enhancedSystemMessage,
-            { 
-              role: "user", 
-              content: userMessage.content 
-            }
+            ...currentChat.messages.filter(msg => msg.role !== "system"),
+            userMessage
           ],
           temperature: 0.3,
           max_tokens: 500,
@@ -413,7 +423,9 @@ const Index = () => {
         // Add assistant response
         const assistantResponseMessage: Message = {
           role: "assistant" as MessageRole,
-          content: responseContent
+          content: responseContent,
+          timestamp: Date.now(),
+          id: `assistant-${Date.now()}`
         };
         addMessageToChat(currentChat.id, assistantResponseMessage);
       } catch (apiError) {
@@ -427,7 +439,9 @@ const Index = () => {
       // Add a user-friendly error message to the chat
       const errorMessage: Message = {
         role: "assistant" as MessageRole,
-        content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : "Unknown error"}. Please try again or switch to another model.`
+        content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : "Unknown error"}. Please try again or switch to another model.`,
+        timestamp: Date.now(),
+        id: `error-${Date.now()}`
       };
       addMessageToChat(currentChat.id, errorMessage);
     } finally {

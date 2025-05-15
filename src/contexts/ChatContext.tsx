@@ -107,7 +107,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: uuidv4(),
       title: "New Chat",
       messages: [
-        { role: "system", content: "You are a helpful AI assistant." }
+        { 
+          role: "system", 
+          content: "You are a helpful AI assistant. Always maintain conversation history and refer back to previous exchanges when appropriate. When users ask follow-up questions or refer to earlier parts of the conversation, remember the context and respond accordingly. Build on previous interactions to provide a coherent, helpful experience.", 
+          id: `system-${Date.now()}`,
+          timestamp: Date.now()
+        }
       ],
       createdAt: new Date(),
     };

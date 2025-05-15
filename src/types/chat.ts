@@ -3,6 +3,8 @@ export type MessageRole = "user" | "assistant" | "system";
 export interface Message {
   role: MessageRole;
   content: string;
+  timestamp?: number; // Optional timestamp for sorting/referencing
+  id?: string; // Optional unique ID for referencing
 }
 
 export interface Chat {
