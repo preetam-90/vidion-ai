@@ -47,12 +47,42 @@ const OPENROUTER_SONAR: Model = {
   name: "Sonar Pro (Perplexity)",
   provider: "openrouter",
   apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "perplexity/sonar-pro"
+  modelId: "perplexity/sonar-medium-online"
+};
+
+// Add Claude model as a backup option
+const OPENROUTER_CLAUDE: Model = {
+  id: "openrouter-claude",
+  name: "Claude 3 Haiku (Thinking)",
+  provider: "openrouter",
+  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+  modelId: "anthropic/claude-3-haiku"
+};
+
+// Add Claude Opus for better thinking capabilities
+const OPENROUTER_CLAUDE_OPUS: Model = {
+  id: "openrouter-claude-opus",
+  name: "Claude 3 Opus (Thinking)",
+  provider: "openrouter",
+  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+  modelId: "anthropic/claude-3-opus"
+};
+
+// Add Mixtral as another reliable fallback
+const OPENROUTER_MIXTRAL: Model = {
+  id: "openrouter-mixtral",
+  name: "Mixtral 8x7B (OpenRouter)",
+  provider: "openrouter",
+  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+  modelId: "mistralai/mixtral-8x7b-instruct"
 };
 
 // Export the models array
 export const AVAILABLE_MODELS: Model[] = [
   GROQ_LLAMA3_8B,
+  OPENROUTER_CLAUDE,
+  OPENROUTER_CLAUDE_OPUS,
+  OPENROUTER_MIXTRAL,
   OPENROUTER_MERCURY,
   OPENROUTER_SONAR
 ]; 

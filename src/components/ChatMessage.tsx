@@ -23,7 +23,13 @@ export const ChatMessage = ({
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
   const [fileAttachments, setFileAttachments] = useState<{name: string, type: string, size: string}[]>([]);
-  const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
+  const [isThinkingExpanded, setIsThinkingExpanded] = useState(true);
+
+  useEffect(() => {
+    if (thinking && role === "assistant") {
+      console.log("ChatMessage received thinking content:", thinking.substring(0, 100) + "...");
+    }
+  }, [thinking, role]);
 
   useEffect(() => {
     // Parse file attachments from message if present
@@ -133,22 +139,22 @@ export const ChatMessage = ({
                     
                     {/* Thinking section for AI message */}
                     {thinking && (
-                      <div className="mt-3">
+                      <div className="mt-4 pt-3 border-t border-indigo-500/30">
                         <button 
                           onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
-                          className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors py-2"
+                          className="flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors py-2"
                         >
-                          <Brain className="h-3.5 w-3.5" />
-                          <span>AI Thinking</span>
+                          <Brain className="h-4 w-4" />
+                          <span className="font-medium">AI Thinking Process</span>
                           {isThinkingExpanded ? 
-                            <ChevronUp className="h-3.5 w-3.5" /> : 
-                            <ChevronDown className="h-3.5 w-3.5" />
+                            <ChevronUp className="h-4 w-4" /> : 
+                            <ChevronDown className="h-4 w-4" />
                           }
                         </button>
                         
                         {isThinkingExpanded && (
-                          <div className="mt-2 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-sm text-gray-300">
-                            <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-1.5 max-w-none break-words text-[13px]">
+                          <div className="mt-2 p-4 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-md text-sm text-gray-300">
+                            <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-2 max-w-none break-words">
                               {thinking}
                             </div>
                           </div>
@@ -176,22 +182,22 @@ export const ChatMessage = ({
                     
                     {/* Thinking section for AI message (non-animated) */}
                     {thinking && (
-                      <div className="mt-3">
+                      <div className="mt-4 pt-3 border-t border-indigo-500/30">
                         <button 
                           onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
-                          className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors py-2"
+                          className="flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors py-2"
                         >
-                          <Brain className="h-3.5 w-3.5" />
-                          <span>AI Thinking</span>
+                          <Brain className="h-4 w-4" />
+                          <span className="font-medium">AI Thinking Process</span>
                           {isThinkingExpanded ? 
-                            <ChevronUp className="h-3.5 w-3.5" /> : 
-                            <ChevronDown className="h-3.5 w-3.5" />
+                            <ChevronUp className="h-4 w-4" /> : 
+                            <ChevronDown className="h-4 w-4" />
                           }
                         </button>
                         
                         {isThinkingExpanded && (
-                          <div className="mt-2 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-sm text-gray-300">
-                            <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-1.5 max-w-none break-words text-[13px]">
+                          <div className="mt-2 p-4 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-md text-sm text-gray-300">
+                            <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-2 max-w-none break-words">
                               {thinking}
                             </div>
                           </div>

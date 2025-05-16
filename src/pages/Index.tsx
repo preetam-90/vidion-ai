@@ -281,24 +281,34 @@ const Index = () => {
         };
       } else {
         // OpenRouter API
+        // Use up-to-date OpenRouter API key - this one might be expired
         const apiKey = "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";
         console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
         requestHeaders = {
           ...requestHeaders,
           "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": "vidionai.vercel.app",
-          "X-Title": "Vidionai"
+          "HTTP-Referer": "vidionai.vercel.app", // Your approved domain
+          "X-Title": "Vidion AI",
+          "Content-Type": "application/json"
         };
         
         // If files are present, add their contents to the system message
         let enhancedSystemMessage = systemMessage;
         
-        // Add thinking instructions for models that support it (like Perplexity Sonar)
-        if (selectedModel.id === "openrouter-sonar" || selectedModel.modelId === "perplexity/sonar-pro") {
-          enhancedSystemMessage = {
-            ...systemMessage,
-            content: `${systemMessage.content}\n\nIMPORTANT: Please provide your reasoning/thinking in a separate thinking section. This helps users understand how you arrive at your answers. Explain your thought process in detail, showing your work for complex questions and listing any assumptions you make. This thinking will be displayed in a collapsible section in the UI.`
-          };
+        // Add thinking instructions for models that support it
+        if (selectedModel.id === "openrouter-sonar" || selectedModel.id.includes("claude") || selectedModel.modelId.includes("perplexity") || selectedModel.modelId.includes("anthropic")) {
+          // For Claude models, use a different prompt format that works better
+          if (selectedModel.id.includes("claude") || selectedModel.modelId.includes("anthropic")) {
+            enhancedSystemMessage = {
+              ...systemMessage,
+              content: `${systemMessage.content}\n\nIMPORTANT INSTRUCTION: After you've determined your answer, please include a section labeled "THINKING: " that explains your reasoning process. Make this section detailed, showing your step-by-step reasoning. This thinking section will be displayed in a collapsible UI element to help users understand how you arrived at your conclusion.`
+            };
+          } else {
+            enhancedSystemMessage = {
+              ...systemMessage,
+              content: `${systemMessage.content}\n\nIMPORTANT: Please provide your reasoning/thinking in a separate thinking section. Begin a separate paragraph with "THINKING:" to show your reasoning process. This thinking will be displayed in a collapsible section in the UI.`
+            };
+          }
         }
         
         if (files && files.length > 0 && fileContents.length > 0) {
@@ -308,6 +318,17 @@ const Index = () => {
           };
         }
         
+        // Use default safe settings for most models
+        let temperature = 0.3;
+        let maxTokens = 750;
+        
+        // Adjust settings per model
+        if (selectedModel.id === "openrouter-claude") {
+          temperature = 0.5; // Claude works well with slightly higher temperature
+        } else if (selectedModel.id === "openrouter-mixtral") {
+          maxTokens = 1000; // Mixtral can handle longer outputs
+        }
+        
         requestBody = {
           model: selectedModel.modelId,
           messages: [
@@ -315,16 +336,16 @@ const Index = () => {
             ...currentChat.messages.filter(msg => msg.role !== "system"),
             userMessage
           ],
-          temperature: 0.3,
-          max_tokens: 500,
+          temperature: temperature,
+          max_tokens: maxTokens,
           stream: false
         };
         
-        console.log("OpenRouter request:", {
+        console.log("Sending OpenRouter request:", {
           endpoint: selectedModel.apiEndpoint,
           model: selectedModel.modelId,
-          content: userMessage.content.substring(0, 30) + "...",
-          headers: Object.keys(requestHeaders)
+          headers: Object.keys(requestHeaders),
+          body: JSON.stringify(requestBody).substring(0, 200) + "..."
         });
       }
 
@@ -333,7 +354,7 @@ const Index = () => {
       try {
         // Add timeout handling for API calls
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // Increased timeout to 20s
         
         let response;
         try {
@@ -345,7 +366,7 @@ const Index = () => {
           });
         } catch (err: any) {
           if (err.name === "AbortError") {
-            throw new Error("Request timed out after 10 seconds");
+            throw new Error("Request timed out after 20 seconds");
           }
           throw err;
         } finally {
@@ -358,8 +379,41 @@ const Index = () => {
           let errorMessage = `Failed to get response from ${selectedModel.name} (Status: ${response.status})`;
           try {
             const errorData = await response.json();
-            console.error("API error:", errorData);
-            errorMessage = errorData.error?.message || errorMessage;
+            console.error("API error data:", errorData);
+            errorMessage = errorData.error?.message || errorData.message || errorMessage;
+            
+            // Check for common OpenRouter auth errors
+            if (response.status === 401 || response.status === 403) {
+              errorMessage = "Authentication error with OpenRouter API. Please check your API key.";
+              console.error("OpenRouter authentication failed. Check API key or subscription.");
+            }
+            
+            // Check for rate limiting or quota errors
+            if (response.status === 429) {
+              errorMessage = "Rate limit or quota exceeded on OpenRouter. Check your subscription limits.";
+            }
+            
+            // Check for invalid model ID and try to automatically switch to a fallback model
+            const invalidModelPattern = /is not a valid model ID|model .* not found|unknown model|invalid model/i;
+            if (invalidModelPattern.test(errorMessage)) {
+              console.log("Invalid model detected. Attempting to fall back to Claude...");
+              
+              // Find Claude model in available models
+              const claudeModel = AVAILABLE_MODELS.find(m => m.id === "openrouter-claude");
+              if (claudeModel) {
+                console.log("Falling back to Claude model");
+                setModel(claudeModel);
+                throw new Error(`Model ${selectedModel.modelId} is not available. Switched to Claude model. Please try again.`);
+              }
+              
+              // If Claude not available, try LLama on Groq
+              const llamaModel = AVAILABLE_MODELS.find(m => m.id === "groq-llama3-8b");
+              if (llamaModel) {
+                console.log("Falling back to Llama model");
+                setModel(llamaModel);
+                throw new Error(`Model ${selectedModel.modelId} is not available. Switched to Llama model. Please try again.`);
+              }
+            }
           } catch (jsonError) {
             console.error("Error parsing error response:", jsonError);
           }
@@ -373,7 +427,14 @@ const Index = () => {
         );
 
         const data = await response.json();
+        console.log("API response data (FULL):", JSON.stringify(data));
         console.log("API response data:", JSON.stringify(data).substring(0, 200) + "...");
+        
+        // If we see a user ID pattern in OpenRouter response, it's likely an auth issue
+        if (typeof data === "string" && data.startsWith("user_")) {
+          console.error("OpenRouter returned a user ID instead of content. Authentication issue detected.");
+          throw new Error("Authentication issue with OpenRouter. Please refresh your API key.");
+        }
         
         let responseContent = "";
         let thinkingContent = ""; // Add variable to capture thinking content
@@ -387,6 +448,22 @@ const Index = () => {
           if (choice.message && choice.message.content) {
             responseContent = choice.message.content;
             console.log("Using standard message.content format");
+            
+            // Extract thinking content using pattern matching for Claude
+            if (selectedModel.id === "openrouter-claude" || 
+                selectedModel.id === "openrouter-mixtral" ||
+                selectedModel.modelId.includes("anthropic")) {
+              const thinkingPattern = /\n\s*THINKING:\s*([\s\S]+?)(?=\n\s*[A-Z]+:|\n\s*$|$)/i;
+              const match = responseContent.match(thinkingPattern);
+              
+              if (match && match[1]) {
+                console.log("Extracted thinking content using pattern matching:", match[1].substring(0, 100) + "...");
+                thinkingContent = match[1].trim();
+                
+                // Remove thinking section from main response
+                responseContent = responseContent.replace(thinkingPattern, '').trim();
+              }
+            }
           } 
           // Check for deltas (streaming)
           else if (choice.delta && choice.delta.content) {
@@ -395,11 +472,11 @@ const Index = () => {
           }
           
           // Extract thinking content from model providers that support it (like Perplexity Sonar)
-          if (selectedModel.id === "openrouter-sonar" || selectedModel.modelId === "perplexity/sonar-pro") {
+          if (!thinkingContent && (selectedModel.id === "openrouter-sonar" || selectedModel.modelId.includes("perplexity"))) {
             // Check for thinking in standard location
             if (choice.message && choice.message.thinking) {
               thinkingContent = choice.message.thinking;
-              console.log("Found thinking content in message.thinking");
+              console.log("Found thinking content in message.thinking:", thinkingContent.substring(0, 100) + "...");
             }
             // Check for thinking in auxiliary_messages
             else if (data.auxiliary_messages && Array.isArray(data.auxiliary_messages)) {
@@ -408,13 +485,13 @@ const Index = () => {
               );
               if (thinkingMessage && thinkingMessage.content) {
                 thinkingContent = thinkingMessage.content;
-                console.log("Found thinking content in auxiliary_messages");
+                console.log("Found thinking content in auxiliary_messages:", thinkingContent.substring(0, 100) + "...");
               }
             }
             // Check for thinking in OpenRouter-specific format
             else if (data.thinking || data.thinking_content) {
               thinkingContent = data.thinking || data.thinking_content;
-              console.log("Found thinking content in top-level thinking field");
+              console.log("Found thinking content in top-level thinking field:", thinkingContent.substring(0, 100) + "...");
             }
             // Check choice for tool_calls that might contain thinking
             else if (choice.message && choice.message.tool_calls && Array.isArray(choice.message.tool_calls)) {
@@ -425,7 +502,7 @@ const Index = () => {
                 try {
                   const args = JSON.parse(thinkingTool.function.arguments);
                   thinkingContent = args.thinking || args.content;
-                  console.log("Found thinking content in tool_calls");
+                  console.log("Found thinking content in tool_calls:", thinkingContent.substring(0, 100) + "...");
                 } catch (e) {
                   console.error("Error parsing thinking tool arguments:", e);
                 }
@@ -496,7 +573,7 @@ const Index = () => {
         const assistantResponseMessage: Message = {
           role: "assistant" as MessageRole,
           content: responseContent,
-          thinking: thinkingContent, // Add thinking content to message
+          thinking: thinkingContent || "This is manually added thinking content for testing. The model should show its reasoning process here, but it appears the thinking content wasn't properly extracted from the API response. Let me know if you're looking for a specific model that supports the thinking feature.", // Add thinking content to message or fallback test content
           timestamp: Date.now(),
           id: `assistant-${Date.now()}`
         };
@@ -509,10 +586,28 @@ const Index = () => {
       console.error("Error sending message:", err);
       setError(err instanceof Error ? err.message : "An unknown error occurred");
       
+      // Create a more descriptive error message with guidance
+      let errorContent = `Sorry, I encountered an error: ${err instanceof Error ? err.message : "Unknown error"}.`;
+      
+      // Add helpful guidance based on error type
+      if (err instanceof Error) {
+        const errorMsg = err.message.toLowerCase();
+        
+        if (errorMsg.includes("api key") || errorMsg.includes("authentication")) {
+          errorContent += "\n\nThis appears to be an authentication issue. The OpenRouter API key may be invalid or expired. Please update the API key in the application.";
+        } 
+        else if (errorMsg.includes("model") && (errorMsg.includes("not valid") || errorMsg.includes("not available"))) {
+          errorContent += "\n\nThis appears to be an issue with the selected model. I've tried to switch to a more reliable model. Please try sending your message again.";
+        }
+        else if (errorMsg.includes("rate limit") || errorMsg.includes("quota")) {
+          errorContent += "\n\nYour OpenRouter account may have reached its rate limit or quota. Please try again later or switch to another model provider.";
+        }
+      }
+      
       // Add a user-friendly error message to the chat
       const errorMessage: Message = {
         role: "assistant" as MessageRole,
-        content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : "Unknown error"}. Please try again or switch to another model.`,
+        content: errorContent,
         timestamp: Date.now(),
         id: `error-${Date.now()}`
       };
