@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { AnimatedMessage } from "./AnimatedMessage";
-import { Copy, Check, User, FileText, Image as ImageIcon, File, Paperclip } from "lucide-react";
+import { Copy, Check, User, FileText, Image as ImageIcon, File, Paperclip, ChevronDown, ChevronUp, Brain } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type MessageRole = "user" | "assistant" | "system";
@@ -8,6 +8,7 @@ type MessageRole = "user" | "assistant" | "system";
 interface ChatMessageProps {
   role: MessageRole;
   content: string;
+  thinking?: string;
   isLoading?: boolean;
   animate?: boolean;
 }
@@ -15,12 +16,14 @@ interface ChatMessageProps {
 export const ChatMessage = ({
   role,
   content,
+  thinking,
   isLoading = false,
   animate = true,
 }: ChatMessageProps) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
   const [fileAttachments, setFileAttachments] = useState<{name: string, type: string, size: string}[]>([]);
+  const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
 
   useEffect(() => {
     // Parse file attachments from message if present
@@ -127,6 +130,32 @@ export const ChatMessage = ({
                     <div className="rounded-lg py-1">
                       <AnimatedMessage text={content} isStreaming={isLoading} />
                     </div>
+                    
+                    {/* Thinking section for AI message */}
+                    {thinking && (
+                      <div className="mt-3">
+                        <button 
+                          onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
+                          className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors py-2"
+                        >
+                          <Brain className="h-3.5 w-3.5" />
+                          <span>AI Thinking</span>
+                          {isThinkingExpanded ? 
+                            <ChevronUp className="h-3.5 w-3.5" /> : 
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          }
+                        </button>
+                        
+                        {isThinkingExpanded && (
+                          <div className="mt-2 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-sm text-gray-300">
+                            <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-1.5 max-w-none break-words text-[13px]">
+                              {thinking}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     <button
                       onClick={copyToClipboard}
                       className="absolute top-0 right-0 p-1.5 rounded-md bg-[#1E293B]/80 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#2D3748] backdrop-blur-sm"
@@ -144,6 +173,32 @@ export const ChatMessage = ({
                     <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-1.5 prose-pre:bg-[#131b2e] prose-pre:border prose-pre:border-[#1d2a45] max-w-none break-words whitespace-pre-wrap text-[#E2E8F0] text-[15px] rounded-lg py-1">
                       {content}
                     </div>
+                    
+                    {/* Thinking section for AI message (non-animated) */}
+                    {thinking && (
+                      <div className="mt-3">
+                        <button 
+                          onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
+                          className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors py-2"
+                        >
+                          <Brain className="h-3.5 w-3.5" />
+                          <span>AI Thinking</span>
+                          {isThinkingExpanded ? 
+                            <ChevronUp className="h-3.5 w-3.5" /> : 
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          }
+                        </button>
+                        
+                        {isThinkingExpanded && (
+                          <div className="mt-2 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-sm text-gray-300">
+                            <div className="prose prose-invert prose-p:leading-relaxed prose-p:my-1.5 max-w-none break-words text-[13px]">
+                              {thinking}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     <button
                       onClick={copyToClipboard}
                       className="absolute top-0 right-0 p-1.5 rounded-md bg-[#1E293B]/80 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#2D3748] backdrop-blur-sm"

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Model } from "@/types/chat";
-import { ChevronDown, Check, Sparkles } from "lucide-react";
+import { ChevronDown, Check, Sparkles, Brain } from "lucide-react";
 import { useModel } from "@/contexts";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +42,11 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
         return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
     }
   };
+  
+  // Helper function to check if a model supports thinking features
+  const supportsThinking = (model: Model) => {
+    return model.id === "openrouter-sonar" || model.modelId === "perplexity/sonar-pro";
+  };
 
   return (
     <div className={cn("relative", className)}>
@@ -57,6 +62,12 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
         <div className="flex items-center">
           <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-400" />
           <span className="truncate">{currentModel.name}</span>
+          {supportsThinking(currentModel) && (
+            <div className="ml-2 flex items-center gap-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-1.5 py-0.5">
+              <Brain className="w-3 h-3 text-indigo-400" />
+              <span className="text-xs text-indigo-400">Thinking</span>
+            </div>
+          )}
         </div>
         <ChevronDown className={cn(
           "w-4 h-4 ml-2 shrink-0 text-gray-400 transition-transform duration-200",
@@ -104,6 +115,12 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
                         <span className="text-xs text-amber-400">
                           Beta
                         </span>
+                      )}
+                      {supportsThinking(model) && (
+                        <div className="flex items-center gap-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-1 py-0.5">
+                          <Brain className="w-2.5 h-2.5 text-indigo-400" />
+                          <span className="text-xs text-indigo-400">Thinking</span>
+                        </div>
                       )}
                     </div>
                   </div>

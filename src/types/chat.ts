@@ -3,6 +3,7 @@ export type MessageRole = "user" | "assistant" | "system";
 export interface Message {
   role: MessageRole;
   content: string;
+  thinking?: string; // Optional field to store AI model thinking/reasoning
   timestamp?: number; // Optional timestamp for sorting/referencing
   id?: string; // Optional unique ID for referencing
 }

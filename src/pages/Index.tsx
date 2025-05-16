@@ -279,7 +279,7 @@ const Index = () => {
           temperature: 0.7,
           max_tokens: 1000
         };
-      } else if (selectedModel.provider === "openrouter") {
+      } else {
         // OpenRouter API
         const apiKey = "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";
         console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
@@ -292,10 +292,19 @@ const Index = () => {
         
         // If files are present, add their contents to the system message
         let enhancedSystemMessage = systemMessage;
-        if (files && files.length > 0 && fileContents.length > 0) {
+        
+        // Add thinking instructions for models that support it (like Perplexity Sonar)
+        if (selectedModel.id === "openrouter-sonar" || selectedModel.modelId === "perplexity/sonar-pro") {
           enhancedSystemMessage = {
             ...systemMessage,
-            content: `${systemMessage.content}\n\nThe user has attached the following files. Process these files and respond to the user's query:\n${fileContents.join("\n\n")}`
+            content: `${systemMessage.content}\n\nIMPORTANT: Please provide your reasoning/thinking in a separate thinking section. This helps users understand how you arrive at your answers. Explain your thought process in detail, showing your work for complex questions and listing any assumptions you make. This thinking will be displayed in a collapsible section in the UI.`
+          };
+        }
+        
+        if (files && files.length > 0 && fileContents.length > 0) {
+          enhancedSystemMessage = {
+            ...enhancedSystemMessage,
+            content: `${enhancedSystemMessage.content}\n\nThe user has attached the following files. Process these files and respond to the user's query:\n${fileContents.join("\n\n")}`
           };
         }
         
@@ -367,42 +376,105 @@ const Index = () => {
         console.log("API response data:", JSON.stringify(data).substring(0, 200) + "...");
         
         let responseContent = "";
-        // Handle different API response formats
-        if (data.choices && data.choices[0]) {
-          if (data.choices[0].message) {
-            responseContent = data.choices[0].message.content;
-            console.log("Using message.content format, found content:", 
-              responseContent.substring(0, 50) + "...");
-          } else if (data.choices[0].text) {
-            responseContent = data.choices[0].text;
-            console.log("Using text format, found content:", 
-              responseContent.substring(0, 50) + "...");
-          } else {
-            // Try to find content in the response structure
-            console.log("Standard response formats not found, trying alternatives");
-            const firstChoice = data.choices[0];
-            
-            if (typeof firstChoice === 'object' && firstChoice !== null) {
-              // Search for string content in the first choice
-              Object.entries(firstChoice).forEach(([key, value]) => {
-                if (typeof value === 'string' && value.length > 20) {
-                  console.log(`Found potential content in '${key}' field`);
-                  responseContent = value;
-                } else if (typeof value === 'object' && value !== null) {
-                  // Look for content field in nested objects
-                  const objValue = value as Record<string, any>;
-                  if (objValue.content && typeof objValue.content === 'string') {
-                    console.log(`Found content in ${key}.content field`);
-                    responseContent = objValue.content;
-                  }
+        let thinkingContent = ""; // Add variable to capture thinking content
+        
+        // Handle different response formats based on the model provider
+        if (data.choices && Array.isArray(data.choices)) {
+          // Standard OpenAI-like format (Groq and some OpenRouter models)
+          const choice = data.choices[0];
+          
+          // Check for content in message
+          if (choice.message && choice.message.content) {
+            responseContent = choice.message.content;
+            console.log("Using standard message.content format");
+          } 
+          // Check for deltas (streaming)
+          else if (choice.delta && choice.delta.content) {
+            responseContent = choice.delta.content;
+            console.log("Using delta.content format");
+          }
+          
+          // Extract thinking content from model providers that support it (like Perplexity Sonar)
+          if (selectedModel.id === "openrouter-sonar" || selectedModel.modelId === "perplexity/sonar-pro") {
+            // Check for thinking in standard location
+            if (choice.message && choice.message.thinking) {
+              thinkingContent = choice.message.thinking;
+              console.log("Found thinking content in message.thinking");
+            }
+            // Check for thinking in auxiliary_messages
+            else if (data.auxiliary_messages && Array.isArray(data.auxiliary_messages)) {
+              const thinkingMessage = data.auxiliary_messages.find(
+                (msg: any) => msg.role === "thinking" || msg.type === "thinking"
+              );
+              if (thinkingMessage && thinkingMessage.content) {
+                thinkingContent = thinkingMessage.content;
+                console.log("Found thinking content in auxiliary_messages");
+              }
+            }
+            // Check for thinking in OpenRouter-specific format
+            else if (data.thinking || data.thinking_content) {
+              thinkingContent = data.thinking || data.thinking_content;
+              console.log("Found thinking content in top-level thinking field");
+            }
+            // Check choice for tool_calls that might contain thinking
+            else if (choice.message && choice.message.tool_calls && Array.isArray(choice.message.tool_calls)) {
+              const thinkingTool = choice.message.tool_calls.find(
+                (tool: any) => tool.function && tool.function.name === "thinking"
+              );
+              if (thinkingTool && thinkingTool.function && thinkingTool.function.arguments) {
+                try {
+                  const args = JSON.parse(thinkingTool.function.arguments);
+                  thinkingContent = args.thinking || args.content;
+                  console.log("Found thinking content in tool_calls");
+                } catch (e) {
+                  console.error("Error parsing thinking tool arguments:", e);
                 }
-              });
+              }
             }
           }
-        } else if (data.response && typeof data.response === 'string') {
-          // Some APIs return a direct response field
-          responseContent = data.response;
-          console.log("Using response field format");
+        }
+        // OpenRouter sometimes uses a different response format
+        else if (data.output && typeof data.output === 'string') {
+          responseContent = data.output;
+          console.log("Using output field format");
+          
+          // Check for thinking in separate fields
+          if (data.thinking || data.thinking_output) {
+            thinkingContent = data.thinking || data.thinking_output;
+          }
+        } else if (data.results && Array.isArray(data.results) && data.results.length > 0) {
+          // Try to parse results array format
+          const result = data.results[0];
+          if (result.text) {
+            responseContent = result.text;
+            console.log("Using results[0].text format");
+          } else if (result.content) {
+            responseContent = result.content;
+            console.log("Using results[0].content format");
+          }
+          
+          // Check for thinking in result
+          if (result.thinking) {
+            thinkingContent = result.thinking;
+          }
+        } else {
+          // Loop through known response formats
+          ['completion', 'message', 'generated_text', 'text'].forEach(key => {
+            if (!responseContent && data[key]) {
+              if (typeof data[key] === 'string') {
+                responseContent = data[key];
+                console.log(`Using ${key} field format`);
+              } else if (typeof data[key] === 'object') {
+                if (data[key].content) {
+                  responseContent = data[key].content;
+                  console.log(`Using ${key}.content format`);
+                }
+                if (data[key].thinking) {
+                  thinkingContent = data[key].thinking;
+                }
+              }
+            }
+          });
         }
         
         if (!responseContent) {
@@ -424,6 +496,7 @@ const Index = () => {
         const assistantResponseMessage: Message = {
           role: "assistant" as MessageRole,
           content: responseContent,
+          thinking: thinkingContent, // Add thinking content to message
           timestamp: Date.now(),
           id: `assistant-${Date.now()}`
         };
@@ -523,6 +596,7 @@ const Index = () => {
                     key={i}
                     role={message.role}
                     content={message.content}
+                    thinking={message.thinking}
                   />
                 ))}
                 {isLoading && (
