@@ -94,8 +94,8 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
     return cn(
       "rounded-full px-4 py-2 h-9 flex items-center gap-1.5 flex-shrink-0 shadow-sm transition-all font-medium",
       isActive 
-        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
-        : "bg-[#202123] text-gray-200 hover:bg-[#303133] border-none"
+        ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20" 
+        : "bg-[#131b2e] text-gray-200 hover:bg-[#1d2a45] border border-[#1d2a45]/50"
     );
   };
 
@@ -112,8 +112,8 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
             size="icon"
             variant="ghost"
             className={cn(
-              "rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 flex-shrink-0",
-              activeButton === 'upload' && "bg-[#1E293B] text-indigo-400"
+              "rounded-full size-10 text-gray-400 hover:bg-[#131b2e] hover:text-gray-300 flex-shrink-0 transition-all",
+              activeButton === 'upload' && "bg-[#131b2e] text-indigo-400 shadow-sm shadow-indigo-500/10"
             )}
             onClick={handleToggleUploader}
           >
@@ -121,7 +121,7 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
             <span className="sr-only">Upload files</span>
           </Button>
           
-          <div className="flex items-center gap-3 overflow-x-auto flex-1 px-1 py-1" 
+          <div className="flex items-center gap-3 overflow-x-auto flex-1 px-1 py-1.5 scrollbar-thin" 
                style={{ 
                  scrollbarWidth: 'thin',
                  scrollbarColor: '#4B5563 transparent'
@@ -167,7 +167,7 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
             type="button"
             size="icon"
             variant="ghost"
-            className="rounded-full size-9 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 flex-shrink-0"
+            className="rounded-full size-9 text-gray-400 hover:bg-[#131b2e] hover:text-gray-300 flex-shrink-0 transition-all"
           >
             <MoreHorizontal className="h-5 w-5" />
             <span className="sr-only">More options</span>
@@ -176,7 +176,7 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
         
         {/* File uploader */}
         {showUploader && (
-          <div className="mb-3">
+          <div className="mb-3 scale-in">
             <FileUploader
               onFilesSelected={handleFilesSelected}
               disabled={disabled}
@@ -189,22 +189,24 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
 
         {/* File preview */}
         {selectedFiles.length > 0 && (
-          <FilePreview
-            files={selectedFiles}
-            onRemoveFile={handleRemoveFile}
-          />
+          <div className="scale-in">
+            <FilePreview
+              files={selectedFiles}
+              onRemoveFile={handleRemoveFile}
+            />
+          </div>
         )}
         
         {/* Input area */}
-        <div className="flex items-center w-full bg-[#111827] rounded-lg border border-[#2D3748] focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/50">
+        <div className="flex items-center w-full bg-[#131b2e]/80 backdrop-blur-sm rounded-xl border border-[#1d2a45] focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30 shadow-lg shadow-black/5 transition-all">
           <div className="flex-1 relative">
             <Textarea
               ref={textareaRef}
               className={cn(
-                "resize-none min-h-[52px] max-h-[120px] py-3.5 px-4 pr-16 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-[#E2E8F0] placeholder-gray-500 text-[15px]",
+                "resize-none min-h-[56px] max-h-[120px] py-4 px-4 pr-20 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-[#E2E8F0] placeholder-gray-500 text-[15px]",
                 disabled && "opacity-50"
               )}
-              placeholder={selectedFiles.length > 0 ? "Add a message or send files directly" : "Ask anything"}
+              placeholder={selectedFiles.length > 0 ? "Add a message or send files directly" : "Ask anything..."}
               value={input}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
@@ -212,11 +214,11 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
               disabled={disabled}
             />
             
-            <div className="absolute right-3 bottom-2.5 flex items-center gap-2">
+            <div className="absolute right-3 bottom-3 flex items-center gap-2">
               <Button 
                 type="button" 
                 size="icon" 
-                className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 bg-transparent"
+                className="rounded-full size-10 text-gray-400 hover:bg-[#1d2a45] hover:text-gray-300 bg-transparent transition-colors"
                 disabled={disabled}
               >
                 <Mic className="h-4.5 w-4.5" />
@@ -227,7 +229,7 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
                 type="submit"
                 size="icon" 
                 className={cn(
-                  "rounded-full size-10 bg-indigo-600 hover:bg-indigo-700 text-white",
+                  "rounded-full size-10 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all",
                   ((!input.trim() && selectedFiles.length === 0) || disabled) && "opacity-50 cursor-not-allowed"
                 )}
                 disabled={(!input.trim() && selectedFiles.length === 0) || disabled}

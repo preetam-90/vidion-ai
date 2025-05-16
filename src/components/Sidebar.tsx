@@ -58,13 +58,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   return (
     <div
       ref={sidebarRef}
-      className={`fixed inset-y-0 left-0 z-50 bg-[#0D1117] transform transition-all duration-300 ease-in-out 
+      className={`fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-[#0D1117] to-[#0f1624] transform transition-all duration-300 ease-in-out 
         ${isOpen 
           ? "translate-x-0 w-[280px] sm:w-[300px]" 
           : "translate-x-[-100%] lg:translate-x-0 w-[70px]"
         } 
         ${!isOpen && "lg:flex hidden"}
-        h-full flex flex-col shadow-lg border-r border-[#1E293B]`}
+        h-full flex flex-col shadow-xl border-r border-[#1d2a45] backdrop-blur-sm`}
     >
       <div className="flex flex-col h-full max-h-screen overflow-hidden">
         {/* In collapsed mode, show the vertical bar with buttons - DESKTOP ONLY */}
@@ -74,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <button 
               ref={toggleBtnRef}
               onClick={() => setIsOpen(true)}
-              className="flex items-center justify-center w-10 h-10 bg-[#111827] rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
+              className="flex items-center justify-center w-10 h-10 bg-[#131b2e] rounded-md text-gray-400 hover:bg-[#1d2a45] hover:text-gray-300 transition-colors shadow-md shadow-black/10"
               aria-label="Expand sidebar"
             >
               <ChevronRightIcon size={20} />
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             {/* Second button: New chat */}
             <button
               onClick={handleCreateNewChat}
-              className="flex items-center justify-center w-10 h-10 bg-[#111827] rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
+              className="flex items-center justify-center w-10 h-10 bg-[#131b2e] rounded-md text-gray-400 hover:bg-[#1d2a45] hover:text-gray-300 transition-colors shadow-md shadow-black/10"
               aria-label="New chat"
             >
               <PlusIcon size={20} />
@@ -94,12 +94,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         {/* Content visible only when expanded */}
         {isOpen && (
           <>
-            <div className="flex items-center justify-between p-4 border-b border-[#1E293B]">
+            <div className="flex items-center justify-between p-4 border-b border-[#1d2a45]">
               <h1 className="text-lg font-semibold text-white">Chats</h1>
               <button 
                 ref={toggleBtnRef}
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:bg-[#111827] hover:text-gray-300 transition-colors"
+                className="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:bg-[#131b2e] hover:text-gray-300 transition-colors"
                 aria-label="Collapse sidebar"
               >
                 <ChevronLeftIcon size={18} />
@@ -109,9 +109,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <div className="p-4 shrink-0">
               <button
                 onClick={handleCreateNewChat}
-                className="w-full flex items-center gap-2 rounded-md border border-[#2D3748] text-white px-4 py-2.5 text-sm hover:bg-[#111827] transition-colors"
+                className="w-full flex items-center gap-2 rounded-md bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white px-4 py-2.5 text-sm transition-all shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30"
               >
-                <PlusIcon size={16} className="text-gray-400" />
+                <PlusIcon size={16} className="text-white" />
                 <span>New chat</span>
               </button>
             </div>
@@ -126,24 +126,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   {chats.map((chat) => (
                     <div
                       key={chat.id}
-                      className={`group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer transition-colors ${
+                      className={`group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer transition-all hover-card ${
                         currentChat?.id === chat.id
-                          ? "bg-[#1E293B] text-white"
-                          : "text-gray-300 hover:bg-[#111827]"
+                          ? "bg-[#1d2a45] text-white shadow-md shadow-black/10"
+                          : "text-gray-300 hover:bg-[#131b2e]"
                       }`}
                       onClick={() => handleChatClick(chat)}
                     >
-                      <MessageSquareIcon
-                        size={16}
-                        className="shrink-0 text-gray-400"
-                      />
+                      <div className={`shrink-0 rounded-full w-6 h-6 flex items-center justify-center ${
+                        currentChat?.id === chat.id
+                          ? "bg-gradient-to-br from-indigo-500/20 to-violet-600/10 ring-1 ring-indigo-500/20"
+                          : "bg-[#131b2e]"
+                      }`}>
+                        <MessageSquareIcon
+                          size={14}
+                          className={`${
+                            currentChat?.id === chat.id
+                              ? "text-indigo-400"
+                              : "text-gray-400"
+                          }`}
+                        />
+                      </div>
                       <div className="truncate flex-1">{chat.title || "New Chat"}</div>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteChat(chat.id);
                         }}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-gray-400 hover:bg-[#2D3748] hover:text-gray-300 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-gray-400 hover:bg-[#2D3748] hover:text-gray-300 transition-all"
                         aria-label="Delete chat"
                       >
                         <TrashIcon size={14} />
@@ -154,9 +164,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               )}
             </div>
 
-            <div className="p-4 border-t border-[#1E293B] mt-auto shrink-0">
-              <div className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-300 hover:bg-[#111827] cursor-pointer transition-colors">
-                <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="p-4 border-t border-[#1d2a45] mt-auto shrink-0">
+              <div className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-300 hover:bg-[#131b2e] cursor-pointer transition-all hover-card">
+                <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
                   <span className="text-white font-semibold">V</span>
                 </div>
                 <div className="text-sm truncate">Vidion AI</div>

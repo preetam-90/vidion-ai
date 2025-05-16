@@ -463,11 +463,11 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#0A0E17]">
+    <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-b from-[#070b14] to-[#0c1221]">
       {/* Mobile overlay when sidebar is open */}
       {sidebarOpen && window.innerWidth < 1024 && (
         <div 
-          className="fixed inset-0 bg-black/70 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -480,19 +480,19 @@ const Index = () => {
       {/* Main content - optimized for desktop */}
       <div className="flex-1 flex flex-col h-full relative max-w-[1200px] mx-auto">
         {/* Header */}
-        <header className="shrink-0 border-b border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center justify-between h-14 px-4 sm:px-6">
+        <header className="shrink-0 border-b border-[#1d2a45] bg-[#0D1117]/80 backdrop-blur-md sticky top-0 z-10 shadow-md shadow-black/5">
+          <div className="flex items-center justify-between h-16 px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="rounded-md h-10 w-10 text-gray-300 hover:bg-[#1E293B] lg:hidden flex items-center justify-center border border-[#2D3748] bg-[#111827]"
+                className="rounded-md h-10 w-10 text-gray-300 hover:bg-[#1d2a45] lg:hidden flex items-center justify-center border border-[#1d2a45] bg-[#131b2e] transition-colors"
               >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
-              <div className="text-xl font-semibold tracking-tight text-white">Vidion AI</div>
+              <div className="text-xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Vidion AI</div>
             </div>
             <div className="flex items-center gap-3">
               <SimpleModelSelector 
@@ -504,7 +504,7 @@ const Index = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => createNewChat()}
-                className="rounded-md h-9 w-9 border-[#2D3748] bg-[#111827] text-gray-300 hover:bg-[#1E293B] hidden sm:flex"
+                className="rounded-md h-9 w-9 border-[#1d2a45] bg-[#131b2e] text-gray-300 hover:bg-[#1d2a45] hidden sm:flex transition-colors"
               >
                 <PlusCircle className="h-5 w-5" />
                 <span className="sr-only">New chat</span>
@@ -514,7 +514,7 @@ const Index = () => {
         </header>
 
         {/* Main chat area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto scrollbar-thin">
           {currentChat ? (
             messages.length > 0 ? (
               <div className="mx-auto max-w-3xl">
@@ -534,17 +534,17 @@ const Index = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] px-4">
-                <div className="max-w-md mx-auto text-center space-y-6">
+                <div className="max-w-md mx-auto text-center space-y-6 scale-in">
                   <div className="flex justify-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/10">
-                      <Image className="h-10 w-10 text-indigo-500" />
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/20 to-violet-600/10 ring-1 ring-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                      <Image className="h-10 w-10 text-indigo-400" />
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <h1 className="text-xl font-semibold sm:text-2xl text-white">
+                    <h1 className="text-xl font-semibold sm:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
                       Welcome to Vidion AI
                     </h1>
-                    <p className="text-gray-400">
+                    <p className="text-gray-300">
                       Start a conversation, ask questions, or get assistance with your tasks.
                     </p>
                   </div>
@@ -553,20 +553,23 @@ const Index = () => {
             )
           ) : (
             <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] px-4">
-              <div className="max-w-md mx-auto text-center space-y-6">
+              <div className="max-w-md mx-auto text-center space-y-6 scale-in">
                 <div className="flex justify-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/10">
-                    <BarChart2 className="h-10 w-10 text-indigo-500" />
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/20 to-violet-600/10 ring-1 ring-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                    <BarChart2 className="h-10 w-10 text-indigo-400" />
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h1 className="text-xl font-semibold sm:text-2xl text-white">
+                  <h1 className="text-xl font-semibold sm:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
                     No active chat
                   </h1>
-                  <p className="text-gray-400">
+                  <p className="text-gray-300">
                     Create a new chat to get started.
                   </p>
-                  <Button onClick={handleCreateNewChat} className="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white border-0">
+                  <Button 
+                    onClick={handleCreateNewChat} 
+                    className="mt-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white border-0 shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all"
+                  >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     New Chat
                   </Button>
@@ -577,7 +580,7 @@ const Index = () => {
         </main>
 
         {/* Input area - footer */}
-        <footer className="shrink-0 border-t border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky bottom-0 w-full z-10 py-4 px-4 sm:px-6">
+        <footer className="shrink-0 border-t border-[#1d2a45] bg-[#0D1117]/80 backdrop-blur-md sticky bottom-0 w-full z-10 py-4 px-4 sm:px-6 shadow-md shadow-black/5">
           <div className="max-w-3xl mx-auto">
             <ChatInput
               onSend={sendMessage}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Model } from "@/types/chat";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Sparkles } from "lucide-react";
 import { useModel } from "@/contexts";
 import { cn } from "@/lib/utils";
 
@@ -29,15 +29,39 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
     setIsOpen(false);
   };
 
+  // Helper function to get provider badge color
+  const getProviderBadgeColor = (provider: string) => {
+    switch (provider) {
+      case 'openrouter':
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+      case 'groq':
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'anthropic':
+        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      default:
+        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    }
+  };
+
   return (
     <div className={cn("relative", className)}>
       {/* Clickable button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-3 py-2 text-sm bg-[#111827] text-white border border-[#2D3748] rounded-md hover:bg-[#1E293B] transition-colors"
+        className={cn(
+          "flex items-center justify-between w-full px-3 py-2 text-sm bg-[#131b2e] text-white border border-[#1d2a45] rounded-md transition-all",
+          "hover:bg-[#1d2a45] hover:border-[#2d3a55] focus:outline-none focus:ring-1 focus:ring-indigo-500/50",
+          isOpen && "border-indigo-500/50 ring-1 ring-indigo-500/50"
+        )}
       >
-        <span className="truncate">{currentModel.name}</span>
-        <ChevronDown className="w-4 h-4 ml-2 shrink-0 text-gray-400" />
+        <div className="flex items-center">
+          <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-400" />
+          <span className="truncate">{currentModel.name}</span>
+        </div>
+        <ChevronDown className={cn(
+          "w-4 h-4 ml-2 shrink-0 text-gray-400 transition-transform duration-200",
+          isOpen && "transform rotate-180"
+        )} />
       </button>
 
       {/* Dropdown menu */}
@@ -50,28 +74,42 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
           />
           
           {/* Dropdown content */}
-          <div className="absolute z-50 w-full mt-1 bg-[#111827] border border-[#2D3748] rounded-md shadow-lg py-1">
-            {/* List all available models */}
-            {availableModels.map((model) => (
-              <button
-                key={model.id}
-                onClick={() => handleSelect(model)}
-                className="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:bg-[#1E293B]"
-              >
-                <div className="w-4 mr-2 shrink-0">
-                  {currentModel.id === model.id && (
-                    <Check className="w-4 h-4 text-indigo-400" />
+          <div className="absolute z-50 w-full mt-1 bg-[#131b2e] border border-[#1d2a45] rounded-md shadow-lg py-1 overflow-hidden scale-in">
+            <div className="max-h-64 overflow-y-auto scrollbar-thin">
+              {/* List all available models */}
+              {availableModels.map((model) => (
+                <button
+                  key={model.id}
+                  onClick={() => handleSelect(model)}
+                  className={cn(
+                    "flex items-center w-full px-3 py-2.5 text-sm text-gray-300 hover:bg-[#1d2a45] transition-colors",
+                    currentModel.id === model.id && "bg-[#1d2a45]/50"
                   )}
-                </div>
-                <span className="truncate">{model.name}</span>
-                <span className="ml-2 text-xs text-gray-500 truncate shrink-0">({model.provider})</span>
-                {model.provider === "openrouter" && (
-                  <span className="ml-2 text-xs text-amber-500 shrink-0">
-                    (Beta)
-                  </span>
-                )}
-              </button>
-            ))}
+                >
+                  <div className="w-4 mr-2 shrink-0">
+                    {currentModel.id === model.id && (
+                      <Check className="w-4 h-4 text-indigo-400" />
+                    )}
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <span className="truncate font-medium">{model.name}</span>
+                    <div className="flex items-center mt-0.5 gap-1.5">
+                      <span className={cn(
+                        "text-xs px-1.5 py-0.5 rounded-full border",
+                        getProviderBadgeColor(model.provider)
+                      )}>
+                        {model.provider}
+                      </span>
+                      {model.provider === "openrouter" && (
+                        <span className="text-xs text-amber-400">
+                          Beta
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </>
       )}
