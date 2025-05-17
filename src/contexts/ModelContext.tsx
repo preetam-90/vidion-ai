@@ -7,11 +7,12 @@ interface ModelContextProps {
   availableModels: Model[];
 }
 
-// Default model as fallback
-const DEFAULT_MODEL = AVAILABLE_MODELS[0];
+// Default model as Mercury
+const DEFAULT_MODEL = AVAILABLE_MODELS.find(m => m.id === "openrouter-mercury") || AVAILABLE_MODELS[0];
 
 // Ensure all models are properly initialized
 console.log("Available models in context:", AVAILABLE_MODELS.map(m => `${m.name} (${m.provider})`));
+console.log("Default model set to:", DEFAULT_MODEL.name);
 
 const ModelContext = createContext<ModelContextProps>({
   model: DEFAULT_MODEL,

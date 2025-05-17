@@ -13,7 +13,8 @@
     "build": "node enforce-pnpm.js && vite build",
     "build:dev": "node enforce-pnpm.js && vite build --mode development",
     "lint": "node enforce-pnpm.js && eslint .",
-    "preview": "node enforce-pnpm.js && vite preview"
+    "preview": "node enforce-pnpm.js && vite preview",
+    "test-mercury": "node scripts/test-mercury.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -84,6 +85,7 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "lovable-tagger": "^1.1.7",
+    "node-fetch": "^3.3.2",
     "only-allow": "^1.2.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",

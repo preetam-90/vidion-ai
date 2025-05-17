@@ -1,13 +1,46 @@
 # Vidion AI
 
-A modern AI chat assistant developed by Preetam, built with React and powered by Groq's API.
+A modern AI chat application that supports multiple models including Mercury DLLM, Groq Llama, and Perplexity Sonar Pro.
+
+## Setup
+
+1. Clone this repository
+2. Install dependencies with pnpm:
+   ```
+   pnpm install
+   ```
+3. Create a `.env` file in the root directory with your API keys:
+   ```
+   VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
+   VITE_GROQ_API_KEY=your_groq_api_key_here
+   ```
+4. Run the development server:
+   ```
+   pnpm run dev
+   ```
+
+## API Keys
+
+### OpenRouter API Key
+Get your OpenRouter API key from [https://openrouter.ai/keys](https://openrouter.ai/keys)
+
+This is required for:
+- Mercury DLLM (inception/mercury-coder-small-beta)
+- Perplexity Sonar Pro (perplexity/sonar)
+
+### Groq API Key
+Get your Groq API key from [https://console.groq.com/keys](https://console.groq.com/keys)
+
+This is required for:
+- Llama 3 (llama3-8b-8192)
 
 ## Features
 
-- Interactive chat interface
-- Custom response handling for identity-related questions
-- Powered by LLaMA 3 through Groq's API
-- Typo-tolerant keyword matching
+- Multiple model support
+- File uploads
+- Thinking/reasoning display
+- Chat history
+- Automatic model fallback
 
 ## Getting Started
 

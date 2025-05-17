@@ -27,11 +27,11 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
     // Use the model based on activeButton
     let modelOverride = undefined;
     if (activeButton === 'search') {
-      modelOverride = 'perplexity';
+      modelOverride = 'search';
     } else if (activeButton === 'reason') {
-      modelOverride = 'groq-llama3';
+      modelOverride = 'reason';
     } else if (activeButton === 'research') {
-      modelOverride = 'mercury';
+      modelOverride = 'research';
     }
     
     onSend(input, modelOverride, selectedFiles.length > 0 ? selectedFiles : undefined);

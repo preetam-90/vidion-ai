@@ -96,16 +96,22 @@ const Index = () => {
 
   // Helper to get model by override key
   const getModelByOverride = (override?: string): Model => {
-    if (override === 'perplexity') {
+    // For search functionality, use Perplexity Sonar Pro
+    if (override === 'perplexity' || override === 'search') {
       return AVAILABLE_MODELS.find(m => m.id === 'openrouter-sonar') || model;
     }
-    if (override === 'groq-llama3') {
+    
+    // For reasoning, use Llama
+    if (override === 'groq-llama3' || override === 'reason') {
       return AVAILABLE_MODELS.find(m => m.id === 'groq-llama3-8b') || model;
     }
-    // Default to mercury
-    if (override === 'mercury') {
+    
+    // Default to Mercury for deep research or no override
+    if (override === 'mercury' || override === 'research' || !override) {
       return AVAILABLE_MODELS.find(m => m.id === 'openrouter-mercury') || model;
     }
+    
+    // If user has manually selected a model, respect that choice
     return model;
   };
 
@@ -254,7 +260,7 @@ const Index = () => {
       // Configure API call based on model provider
       if (selectedModel.provider === "groq") {
         // Groq API
-        const apiKey = "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";
+        const apiKey = import.meta.env.VITE_GROQ_API_KEY || "your-groq-api-key-here";
         requestHeaders = {
           ...requestHeaders,
           "Authorization": `Bearer ${apiKey}`
@@ -281,11 +287,10 @@ const Index = () => {
         };
       } else {
         // OpenRouter API
-        // Use up-to-date OpenRouter API key - this one might be expired
-        const apiKey = "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";
+        // Use environment variable for API key
+        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "your-openrouter-api-key-here";
         console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
         requestHeaders = {
-          ...requestHeaders,
           "Authorization": `Bearer ${apiKey}`,
           "HTTP-Referer": "vidionai.vercel.app", // Your approved domain
           "X-Title": "Vidion AI",
@@ -296,19 +301,11 @@ const Index = () => {
         let enhancedSystemMessage = systemMessage;
         
         // Add thinking instructions for models that support it
-        if (selectedModel.id === "openrouter-sonar" || selectedModel.id.includes("claude") || selectedModel.modelId.includes("perplexity") || selectedModel.modelId.includes("anthropic")) {
-          // For Claude models, use a different prompt format that works better
-          if (selectedModel.id.includes("claude") || selectedModel.modelId.includes("anthropic")) {
-            enhancedSystemMessage = {
-              ...systemMessage,
-              content: `${systemMessage.content}\n\nIMPORTANT INSTRUCTION: After you've determined your answer, please include a section labeled "THINKING: " that explains your reasoning process. Make this section detailed, showing your step-by-step reasoning. This thinking section will be displayed in a collapsible UI element to help users understand how you arrived at your conclusion.`
-            };
-          } else {
-            enhancedSystemMessage = {
-              ...systemMessage,
-              content: `${systemMessage.content}\n\nIMPORTANT: Please provide your reasoning/thinking in a separate thinking section. Begin a separate paragraph with "THINKING:" to show your reasoning process. This thinking will be displayed in a collapsible section in the UI.`
-            };
-          }
+        if (selectedModel.id === "openrouter-sonar" || selectedModel.modelId.includes("perplexity")) {
+          enhancedSystemMessage = {
+            ...systemMessage,
+            content: `${systemMessage.content}\n\nIMPORTANT: Please provide your reasoning/thinking in a separate thinking section. Begin a separate paragraph with "THINKING:" to show your reasoning process. This thinking will be displayed in a collapsible section in the UI.`
+          };
         }
         
         if (files && files.length > 0 && fileContents.length > 0) {
@@ -322,13 +319,6 @@ const Index = () => {
         let temperature = 0.3;
         let maxTokens = 750;
         
-        // Adjust settings per model
-        if (selectedModel.id === "openrouter-claude") {
-          temperature = 0.5; // Claude works well with slightly higher temperature
-        } else if (selectedModel.id === "openrouter-mixtral") {
-          maxTokens = 1000; // Mixtral can handle longer outputs
-        }
-        
         requestBody = {
           model: selectedModel.modelId,
           messages: [
@@ -337,8 +327,7 @@ const Index = () => {
             userMessage
           ],
           temperature: temperature,
-          max_tokens: maxTokens,
-          stream: false
+          max_tokens: maxTokens
         };
         
         console.log("Sending OpenRouter request:", {
@@ -396,22 +385,37 @@ const Index = () => {
             // Check for invalid model ID and try to automatically switch to a fallback model
             const invalidModelPattern = /is not a valid model ID|model .* not found|unknown model|invalid model/i;
             if (invalidModelPattern.test(errorMessage)) {
-              console.log("Invalid model detected. Attempting to fall back to Claude...");
+              console.log("Invalid model detected. Attempting to fall back to another model...");
+              console.error("Model error details:", {
+                modelId: selectedModel.modelId,
+                modelName: selectedModel.name,
+                provider: selectedModel.provider,
+                errorMessage
+              });
               
-              // Find Claude model in available models
-              const claudeModel = AVAILABLE_MODELS.find(m => m.id === "openrouter-claude");
-              if (claudeModel) {
-                console.log("Falling back to Claude model");
-                setModel(claudeModel);
-                throw new Error(`Model ${selectedModel.modelId} is not available. Switched to Claude model. Please try again.`);
-              }
-              
-              // If Claude not available, try LLama on Groq
+              // Try to find a working model from available models
+              // First try Llama as it's most reliable
               const llamaModel = AVAILABLE_MODELS.find(m => m.id === "groq-llama3-8b");
-              if (llamaModel) {
+              if (llamaModel && llamaModel.id !== selectedModel.id) {
                 console.log("Falling back to Llama model");
                 setModel(llamaModel);
                 throw new Error(`Model ${selectedModel.modelId} is not available. Switched to Llama model. Please try again.`);
+              }
+              
+              // If Llama was the one that failed or is not available, try Sonar
+              const sonarModel = AVAILABLE_MODELS.find(m => m.id === "openrouter-sonar");
+              if (sonarModel && sonarModel.id !== selectedModel.id) {
+                console.log("Falling back to Sonar model");
+                setModel(sonarModel);
+                throw new Error(`Model ${selectedModel.modelId} is not available. Switched to Sonar model. Please try again.`);
+              }
+              
+              // If both failed, try Mercury
+              const mercuryModel = AVAILABLE_MODELS.find(m => m.id === "openrouter-mercury");
+              if (mercuryModel && mercuryModel.id !== selectedModel.id) {
+                console.log("Falling back to Mercury model");
+                setModel(mercuryModel);
+                throw new Error(`Model ${selectedModel.modelId} is not available. Switched to Mercury model. Please try again.`);
               }
             }
           } catch (jsonError) {
@@ -449,20 +453,16 @@ const Index = () => {
             responseContent = choice.message.content;
             console.log("Using standard message.content format");
             
-            // Extract thinking content using pattern matching for Claude
-            if (selectedModel.id === "openrouter-claude" || 
-                selectedModel.id === "openrouter-mixtral" ||
-                selectedModel.modelId.includes("anthropic")) {
-              const thinkingPattern = /\n\s*THINKING:\s*([\s\S]+?)(?=\n\s*[A-Z]+:|\n\s*$|$)/i;
-              const match = responseContent.match(thinkingPattern);
+            // Extract thinking content using pattern matching
+            const thinkingPattern = /\n\s*THINKING:\s*([\s\S]+?)(?=\n\s*[A-Z]+:|\n\s*$|$)/i;
+            const match = responseContent.match(thinkingPattern);
+            
+            if (match && match[1]) {
+              console.log("Extracted thinking content using pattern matching:", match[1].substring(0, 100) + "...");
+              thinkingContent = match[1].trim();
               
-              if (match && match[1]) {
-                console.log("Extracted thinking content using pattern matching:", match[1].substring(0, 100) + "...");
-                thinkingContent = match[1].trim();
-                
-                // Remove thinking section from main response
-                responseContent = responseContent.replace(thinkingPattern, '').trim();
-              }
+              // Remove thinking section from main response
+              responseContent = responseContent.replace(thinkingPattern, '').trim();
             }
           } 
           // Check for deltas (streaming)
