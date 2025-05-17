@@ -1,0 +1,3 @@
+# Ignore npm and yarn lock files to prevent accidental usage
+package-lock.json
+yarn.lock 
