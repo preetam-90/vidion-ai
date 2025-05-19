@@ -390,18 +390,17 @@ PROHIBITED TOPICS:
         requestHeaders = {
           ...requestHeaders,
           "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": "vidionai.vercel.app",
-          "X-Title": "Vidionai"
+          "HTTP-Referer": "https://vidionai.vercel.app",
+          "X-Title": "Vidion AI",
+          "Content-Type": "application/json"
         };
         
         requestBody = {
           model: model.modelId,
           messages: [
             systemMessage,
-            { 
-              role: "user", 
-              content: userMessage.content 
-            }
+            ...currentChat.messages.filter(msg => msg.role !== "system"),
+            { role: userMessage.role, content: userMessage.content }
           ],
           temperature: 0.3,
           max_tokens: 500,
