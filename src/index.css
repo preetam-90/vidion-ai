@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Dark Mode Palette (default) */
     --background: 220 13% 8%;
     --foreground: 220 10% 98%;
 
@@ -50,6 +51,48 @@
     --transition-medium: 200ms;
     --transition-fast: 150ms;
   }
+
+  .light-mode {
+    /* Light Mode Palette */
+    --background: 0 0% 100%;
+    --foreground: 220 10% 10%;
+
+    --muted: 220 10% 92%;
+    --muted-foreground: 220 10% 40%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 220 10% 10%;
+
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+
+    --primary: 250 95% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 13% 96%;
+    --secondary-foreground: 220 10% 10%;
+
+    --accent: 250 95% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --ring: 250 95% 60%;
+
+    /* Sidebar variables */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 10% 10%;
+    --sidebar-primary: 250 95% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 250 95% 60%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-ring: 250 95% 60%;
+  }
 }
 
 @layer base {
@@ -63,12 +106,15 @@
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 18px; /* Larger base font size for better readability */
+    line-height: 1.5; /* Improved line height for readability */
   }
   
   body {
-    background-color: #0A0E17;
-    color: #E2E8F0;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   
   #root {
@@ -78,27 +124,35 @@
   
   /* Better link colors */
   a {
-    @apply text-indigo-400 hover:text-indigo-300;
+    @apply text-indigo-400 hover:text-indigo-300 transition-colors;
+  }
+
+  .light-mode a {
+    @apply text-indigo-600 hover:text-indigo-700;
   }
   
   /* Custom prose (markdown) styles */
   .prose {
-    @apply text-[#E2E8F0] max-w-none;
+    @apply text-[hsl(var(--foreground))] max-w-none;
   }
   
   .prose strong {
-    @apply text-white;
+    @apply font-semibold;
   }
   
   .prose a {
-    @apply text-indigo-400 hover:text-indigo-300 no-underline hover:underline;
+    @apply text-indigo-400 hover:text-indigo-300 no-underline hover:underline transition-colors;
+  }
+
+  .light-mode .prose a {
+    @apply text-indigo-600 hover:text-indigo-700;
   }
   
   .prose h1, 
   .prose h2, 
   .prose h3, 
   .prose h4 {
-    @apply text-white font-semibold;
+    @apply font-semibold;
   }
   
   .prose p {
@@ -106,11 +160,11 @@
   }
   
   .prose code {
-    @apply bg-[#111827] px-1.5 py-0.5 rounded text-[#E2E8F0] text-sm font-normal;
+    @apply bg-[hsl(var(--muted))] px-1.5 py-0.5 rounded text-[hsl(var(--foreground))] text-sm font-normal;
   }
   
   .prose pre {
-    @apply bg-[#111827] border border-[#2D3748] text-[#E2E8F0] rounded-md overflow-x-auto;
+    @apply bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] rounded-md overflow-x-auto;
   }
   
   .prose pre code {
@@ -127,7 +181,54 @@
   }
   
   .prose blockquote {
-    @apply border-l-4 border-[#2D3748] pl-4 text-gray-400;
+    @apply border-l-4 border-[hsl(var(--border))] pl-4 text-[hsl(var(--muted-foreground))];
+  }
+  
+  /* Enhanced chat message styling */
+  .whitespace-pre-line {
+    white-space: pre-line;
+  }
+  
+  /* Emoji styling */
+  .whitespace-pre-line br + br {
+    margin-top: 0.5rem;
+  }
+  
+  /* Section header styling */
+  .whitespace-pre-line strong {
+    @apply text-indigo-300 font-bold;
+  }
+  
+  /* Emoji styling */
+  .whitespace-pre-line {
+    font-size: 1rem;
+  }
+  
+  /* Make emojis slightly larger */
+  .whitespace-pre-line:not(pre) {
+    font-size: 1rem;
+  }
+  
+  /* Ensure emojis are properly sized and aligned */
+  .whitespace-pre-line:not(pre) {
+    line-height: 1.6;
+  }
+  
+  /* Highlight section headers */
+  .whitespace-pre-line strong {
+    @apply text-indigo-300 font-bold text-lg;
+  }
+  
+  /* Add spacing after section headers */
+  .whitespace-pre-line strong + br {
+    content: "";
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Make bullet points stand out */
+  .whitespace-pre-line:not(pre) {
+    letter-spacing: 0.01em;
   }
   
   /* Mobile-specific adjustments */
@@ -159,10 +260,19 @@
   ::-webkit-scrollbar-thumb {
     background: rgba(156, 163, 175, 0.3);
     border-radius: 3px;
+    transition: background 0.2s ease;
   }
   
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(156, 163, 175, 0.5);
+  }
+
+  .light-mode ::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+  }
+  
+  .light-mode ::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
   }
   
   /* Hide scrollbar for mobile */
@@ -184,24 +294,66 @@
 @layer components {
   /* Button variants */
   .btn-primary {
-    @apply bg-indigo-600 hover:bg-indigo-700 text-white;
+    @apply bg-indigo-600 hover:bg-indigo-700 text-white transition-colors;
   }
   
   .btn-secondary {
-    @apply bg-[#1E293B] hover:bg-[#2D3748] text-white;
+    @apply bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--secondary))/80] text-[hsl(var(--secondary-foreground))] transition-colors;
   }
   
   .btn-outline {
-    @apply border border-[#2D3748] bg-transparent hover:bg-[#111827] text-gray-300;
+    @apply border border-[hsl(var(--border))] bg-transparent hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] transition-colors;
   }
   
   /* Message bubble styles */
   .message-user {
-    @apply bg-[#111827] text-[#E2E8F0];
+    @apply bg-indigo-600 text-white;
   }
   
   .message-ai {
-    @apply bg-transparent text-[#E2E8F0];
+    @apply bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))];
+  }
+
+  /* Card hover effects with subtle glow */
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+
+  .card-hover:hover {
+    @apply shadow-[0_0_15px_rgba(79,70,229,0.15)];
+  }
+
+  .light-mode .card-hover:hover {
+    @apply shadow-[0_0_15px_rgba(79,70,229,0.1)];
+  }
+
+  /* Input focus styles */
+  .input-focus {
+    @apply focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none;
+  }
+
+  /* Avatar styles */
+  .avatar {
+    @apply flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold;
+  }
+
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.2s ease-out forwards;
+  }
+  
+  @keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 }
 
@@ -228,45 +380,16 @@
     transition: opacity 200ms ease-in-out;
   }
   
-  .scale-in {
-    animation: scaleIn 0.2s ease-out forwards;
-  }
-  
-  @keyframes scaleIn {
-    from {
-      transform: scale(0.95);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-  
-  .fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  /* For cursor blink effect */
   .cursor-blink {
-    animation: blink 0.8s ease-in-out infinite;
+    animation: blink 1s step-end infinite;
   }
   
   @keyframes blink {
-    0%, 100% { opacity: 1; }
+    from, to { opacity: 1; }
     50% { opacity: 0; }
   }
   
-  /* Mobile safe area insets */
+  /* Safe area utilities for mobile */
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
@@ -283,17 +406,17 @@
     padding-right: env(safe-area-inset-right);
   }
   
-  /* Hide scrollbar utility */
+  /* Hide scrollbars but keep functionality */
   .scrollbar-none {
-    -ms-overflow-style: none;
     scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
   
-  /* Thin scrollbar utility */
+  /* Thin scrollbars */
   .scrollbar-thin {
     scrollbar-width: thin;
   }

@@ -7,18 +7,154 @@ import { useModel } from "@/contexts";
 import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";
-import { Menu, PlusCircle, Search, Lightbulb, BarChart2, Image, MoreHorizontal, Mic, Send } from "lucide-react";
+import { 
+  Menu, 
+  PlusCircle, 
+  Search, 
+  Lightbulb, 
+  BarChart2, 
+  Image, 
+  MoreHorizontal, 
+  Send, 
+  Moon,
+  Sun,
+  ChevronRight,
+  User,
+  ArrowDown,
+  RefreshCw,
+  Paperclip,
+  Smile,
+  Slash,
+  Check
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model } from "@/types/chat";
+import { formatDistanceToNow } from "date-fns";
+
+// Function to clean up AI responses
+const cleanupAIResponse = (text: string): string => {
+  // First, extract any content that might be in the signature to preserve it
+  const signatureMatch = text.match(/I am Vidion AI,?\s+developed by Preetam\.?$/i);
+  let signaturePart = '';
+  if (signatureMatch) {
+    signaturePart = signatureMatch[0];
+    text = text.replace(signaturePart, '');
+  }
+
+  // Remove citation-style references like [1], [2][3], etc.
+  let cleaned = text.replace(/\[\d+\](?:\[\d+\])*/g, '');
+  
+  // Remove references with multiple numbers like [1][2][3]
+  cleaned = cleaned.replace(/\[\d+\]\[\d+\](?:\[\d+\])*/g, '');
+  
+  // Remove standalone numbers in brackets at the end of sentences
+  cleaned = cleaned.replace(/\s*\[\d+\]\s*\./g, '.');
+  
+  // Remove citation blocks at the end of the text
+  cleaned = cleaned.replace(/\[\d+\]:\s*https?:\/\/[^\s]+(\s|$)/g, '');
+  
+  // Remove citation references with text like [citation]
+  cleaned = cleaned.replace(/\[[a-zA-Z0-9]+\]/g, '');
+  
+  // Special handling for [n] references in text
+  cleaned = cleaned.replace(/\[(\d+)\]/g, '');
+  
+  // Fix multiple spaces
+  cleaned = cleaned.replace(/\s{2,}/g, ' ');
+  
+  // Fix inconsistent line breaks
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  
+  // Remove any remaining citation patterns like [1][3][5]
+  cleaned = cleaned.replace(/\[(\d+)\](?:\[(\d+)\])+/g, '');
+  
+  // Enhance formatting with emojis and better section structure
+  
+  // First, identify and enhance major section headers with emojis and better formatting
+  cleaned = cleaned.replace(/\*\*(Ancient Bihar|Ancient History)\*\*/g, '\n🏛️ **Ancient History** - Where it all began\n');
+  cleaned = cleaned.replace(/\*\*(Medieval Bihar)\*\*/g, '\n🏰 **Medieval Period** - Kingdoms & Culture\n');
+  cleaned = cleaned.replace(/\*\*(Modern Bihar)\*\*/g, '\n🏙️ **Modern Era** - Colonial to Contemporary\n');
+  cleaned = cleaned.replace(/\*\*(Importance of Bihar)\*\*/g, '\n✨ **Why Bihar Matters**\n');
+  cleaned = cleaned.replace(/\*\*(Buddhist Heritage)\*\*/g, '\n🧘 **Religious Importance** - 4G of Dharma\n');
+  cleaned = cleaned.replace(/\*\*(Ancient Cities)\*\*/g, '\n🏯 **Ancient Cities** - Timeless Heritage\n');
+  cleaned = cleaned.replace(/\*\*(Literary Heritage)\*\*/g, '\n📚 **Literary Heritage** - Scholars & Texts\n');
+  cleaned = cleaned.replace(/\*\*(Cultural Diversity)\*\*/g, '\n🎭 **Cultural & Linguistic Richness** - Bhojpuri se Maithili tak\n');
+  cleaned = cleaned.replace(/\*\*(Economic Importance)\*\*/g, '\n📈 **Economic Importance** - Resources & Potential\n');
+  cleaned = cleaned.replace(/\*\*(Freedom Struggle)\*\*/g, '\n⚔️ **Freedom Struggle** - Desh ke rebels ka adda\n');
+  
+  // Add emojis to bullet points for better visual appeal
+  cleaned = cleaned.replace(/^(\s*)\*\s+/gm, '$1• ');
+  
+  // Format specific topics with emojis
+  cleaned = cleaned.replace(/\b(Buddhism|Buddhist)\b/gi, '🧘 Buddhism');
+  cleaned = cleaned.replace(/\b(Hinduism|Hindu)\b/gi, '🕉️ Hinduism');
+  cleaned = cleaned.replace(/\b(Jainism|Jain)\b/gi, '☸️ Jainism');
+  cleaned = cleaned.replace(/\b(Sikhism|Sikh)\b/gi, '☬ Sikhism');
+  cleaned = cleaned.replace(/\b(Maurya|Mauryan Empire)\b/gi, '👑 Mauryan Empire');
+  cleaned = cleaned.replace(/\b(Gupta Empire)\b/gi, '👑 Gupta Empire');
+  cleaned = cleaned.replace(/\b(Pala Empire)\b/gi, '👑 Pala Empire');
+  cleaned = cleaned.replace(/\b(Magadh|Magadha)\b/gi, '🏛️ Magadha');
+  cleaned = cleaned.replace(/\b(Pataliputra|Patna)\b/gi, '🏙️ Pataliputra');
+  cleaned = cleaned.replace(/\b(Nalanda|Vikramshila)\b/gi, '🎓 Nalanda');
+  cleaned = cleaned.replace(/\b(Chandragupta Maurya)\b/gi, '👑 Chandragupta Maurya');
+  cleaned = cleaned.replace(/\b(Ashoka|Asoka)\b/gi, '👑 Ashoka');
+  cleaned = cleaned.replace(/\b(Gautam Buddha|Siddhartha Gautama)\b/gi, '🧘 Gautam Buddha');
+  cleaned = cleaned.replace(/\b(Bodh Gaya)\b/gi, '🧘 Bodh Gaya');
+  cleaned = cleaned.replace(/\b(Champaran Satyagraha)\b/gi, '✊ Champaran Satyagraha');
+  cleaned = cleaned.replace(/\b(Gandhi|Mahatma Gandhi)\b/gi, '✊ Gandhi');
+  cleaned = cleaned.replace(/\b(agriculture|farming|crops)\b/gi, '🌾 Agriculture');
+  cleaned = cleaned.replace(/\b(culture|cultural|traditions)\b/gi, '🎭 Cultural');
+  cleaned = cleaned.replace(/\b(literature|literary|books|writings)\b/gi, '📚 Literature');
+  cleaned = cleaned.replace(/\b(economy|economic|industries)\b/gi, '📈 Economy');
+  cleaned = cleaned.replace(/\b(Bhojpuri)\b/gi, '🗣️ Bhojpuri');
+  cleaned = cleaned.replace(/\b(Maithili)\b/gi, '🗣️ Maithili');
+  cleaned = cleaned.replace(/\b(Magahi)\b/gi, '🗣️ Magahi');
+  cleaned = cleaned.replace(/\b(Angika)\b/gi, '🗣️ Angika');
+  
+  // Ensure proper spacing between sections
+  cleaned = cleaned.replace(/\n{2,}🏛️/g, '\n\n🏛️');
+  cleaned = cleaned.replace(/\n{2,}🏰/g, '\n\n🏰');
+  cleaned = cleaned.replace(/\n{2,}🏙️/g, '\n\n🏙️');
+  cleaned = cleaned.replace(/\n{2,}✨/g, '\n\n✨');
+  cleaned = cleaned.replace(/\n{2,}🧘/g, '\n\n🧘');
+  cleaned = cleaned.replace(/\n{2,}🏯/g, '\n\n🏯');
+  cleaned = cleaned.replace(/\n{2,}📚/g, '\n\n📚');
+  cleaned = cleaned.replace(/\n{2,}🎭/g, '\n\n🎭');
+  cleaned = cleaned.replace(/\n{2,}📈/g, '\n\n📈');
+  cleaned = cleaned.replace(/\n{2,}⚔️/g, '\n\n⚔️');
+  
+  // Ensure proper signature format
+  const signatureText = "I am Vidion AI, developed by Preetam.";
+  
+  // Remove any existing signature that might be malformed
+  cleaned = cleaned.replace(/I am Vidion AI,?\s+developed by Preetam\.?$/i, '');
+  
+  // Add proper signature if not present
+  if (!cleaned.trim().endsWith(signatureText)) {
+    // Add a line break before the signature if needed
+    if (!cleaned.trim().endsWith("\n")) {
+      cleaned = cleaned.trim() + "\n\n";
+    }
+    cleaned += signatureText;
+  }
+  
+  return cleaned;
+};
 
 const Index = () => {
-  const { currentChat, addMessageToChat, createNewChat } = useChat();
+  const { currentChat, addMessageToChat, createNewChat, updateChatMessages } = useChat();
   const { model, setModel } = useModel();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatAreaRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
 
   // Set initial sidebar state based on screen size
   useEffect(() => {
@@ -54,6 +190,23 @@ const Index = () => {
     }
   }, [error]);
 
+  // Check scroll position to show/hide scroll button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!chatAreaRef.current) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = chatAreaRef.current;
+      const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+      setShowScrollButton(isScrolledUp);
+    };
+    
+    const chatArea = chatAreaRef.current;
+    if (chatArea) {
+      chatArea.addEventListener('scroll', handleScroll);
+      return () => chatArea.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
 
@@ -62,6 +215,7 @@ const Index = () => {
     try {
       console.log("Changing model to:", newModel.name);
       setModel(newModel);
+      setIsModelSelectorOpen(false);
     } catch (error) {
       console.error("Error changing model:", error);
       toast.error("Error changing model", {
@@ -70,7 +224,58 @@ const Index = () => {
     }
   };
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    // Here you would also update the theme in your app
+    document.documentElement.classList.toggle('dark-mode', !isDarkMode);
+    document.documentElement.classList.toggle('light-mode', isDarkMode);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const markAsRead = (index: number) => {
+    setReadMessages(prev => new Set(prev).add(index));
+  };
+
+  // Regenerate the assistant response for a given message index
+  const regenerateResponse = async (assistantMessageIndex: number) => {
+    if (isLoading) return;
+    if (!currentChat) {
+      toast.error("No active chat", { description: "Please start a chat first." });
+      return;
+    }
+    // Locate the last user message before this assistant response
+    const msgs = messages;
+    let userIdx = -1;
+    for (let i = assistantMessageIndex - 1; i >= 0; i--) {
+      if (msgs[i].role === 'user') { userIdx = i; break; }
+    }
+    if (userIdx === -1) {
+      toast.error("Could not find the user message to regenerate response");
+      return;
+    }
+    const userContent = msgs[userIdx].content;
+    // Truncate messages to before the assistant response
+    const truncated = msgs.slice(0, assistantMessageIndex);
+    // Rebuild full chat messages including system prompts
+    const systemMsgs = currentChat.messages.filter(m => m.role === 'system');
+    const newMsgs = [...systemMsgs, ...truncated];
+    // Update chat context with truncated messages
+    updateChatMessages(currentChat.id, newMsgs);
+    // Trigger new response
+    setIsLoading(true);
+    await sendMessage(userContent);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+  };
+
   const sendMessage = async (content: string) => {
+    if (!content.trim()) return;
+    
     if (!currentChat) {
       toast.error("No active chat", {
         description: "Please create a new chat first"
@@ -85,55 +290,67 @@ const Index = () => {
       
       setIsLoading(true);
       setError(null);
+      setInputValue(""); // Clear input after sending
       
       // Log the current model being used
-      console.log("Sending message using model:", model.name, model.provider, model.modelId);
+      console.log("Sending message using model:", model.name);
 
       // Prepare common request parts
       const systemMessage = {
         role: "system",
-        content: `You are Vidion AI, developed by Preetam. Follow these guidelines:
+        content: `You are Vidion AI, an advanced assistant created by Preetam.
 
-1. IDENTITY: You are Vidion AI. NEVER start responses with "I am Vidion AI" or similar introductions. 
-   ALWAYS end your responses with "I am Vidion AI, developed by Preetam." as a signature.
-   Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI, OpenAI, Anthropic or any other company.
+Your job is to provide answers that are:
+- Structured
+- Clean
+- Markdown-formatted
+- Easy to read
 
-2. PERSONALITY:
-   - Be chill and conversational
-   - Use Gen Z humor appropriately
-   - Get to the point without boring intros
-   - Always stay respectful
-   - Be mature and stand with the truth
-   - Show interest in different cultures and heritage
+Formatting rules:
+- Use **bold** to highlight key terms
+- Use *italics* for emphasis or clarity
+- Use \`inline code\` for commands or keywords
+- Use bullet points \`-\` or numbered steps \`1.\` for lists
+- Add \`###\` subheadings to organize long answers
+- Avoid dense paragraphs; keep sentences brief and spaced
+- Use horizontal lines \`---\` to separate sections (if needed)
+- End with a short, friendly closing or summary line
 
-3. KNOWLEDGE:
-   - You know about Preetam's projects (Vidion, Vidion AI, news website)
-   - You're aware of his gaming style and preferences
-   - You understand his cultural background and interests
-   - When unsure, acknowledge it clearly instead of making up information
-   - IMPORTANT: Always provide personal details about Preetam when asked, including:
-     * Full name: Preetam
-     * Birthday: August 11, 2004 (born at 5 AM)
-     * Hometown: Punsia, Banka district, Bihar, India
-     * Current role: Engineering student, Computer Science branch (CSE)
-     * Height: 5'10.5" (179 cm)
-     * Weight: Around 67.5 kg
-     * Living: Sarojini Boys Hostel-1, MIET
-     * Room details: Two-seater, square-shaped with two beds, three tables, two chairs, two wardrobes (west), two windows (east), one door (west corner)
-     * Gaming: Hardcore Free Fire player, aggressive style, tactical nader, nickname "Spectre"
-     * Projects: Vidion (YouTube-like platform), Vidion AI (GPT-style model), React+Vite news website
-     * Background: Suryavanshi Rajput, mature for his age, loves different cultures and heritage
-     * Languages: Hindi (preferred), English (fluent)
+IDENTITY: You are Vidion AI. NEVER start responses with "I am Vidion AI" or similar introductions. 
+ALWAYS end your responses with "I am Vidion AI, developed by Preetam." as a signature.
+Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI, OpenAI, Anthropic or any other company.
 
-4. FORMATTING: 
-   - Use bullet points for lists
-   - Use short paragraphs (2-3 sentences max)
-   - Bold important terms using markdown (**term**)
+PERSONALITY:
+- Be chill and conversational
+- Use Gen Z humor appropriately
+- Get to the point without boring intros
+- Always stay respectful
+- Be mature and stand with the truth
+- Show interest in different cultures and heritage
 
-5. PROHIBITED TOPICS:
-   - Decline discussing self-harm, illegal activities, or harmful content
-   - For medical questions, remind users you're not a qualified medical professional
-   - For legal advice, remind users to consult a qualified legal professional`
+KNOWLEDGE:
+- You know about Preetam's projects (Vidion, Vidion AI, news website)
+- You're aware of his gaming style and preferences
+- You understand his cultural background and interests
+- When unsure, acknowledge it clearly instead of making up information
+- IMPORTANT: Always provide personal details about Preetam when asked, including:
+  * Full name: Preetam
+  * Birthday: August 11, 2004 (born at 5 AM)
+  * Hometown: Punsia, Banka district, Bihar, India
+  * Current role: Engineering student, Computer Science branch (CSE)
+  * Height: 5'10.5" (179 cm)
+  * Weight: Around 67.5 kg
+  * Living: Sarojini Boys Hostel-1, MIET
+  * Room details: Two-seater, square-shaped with two beds, three tables, two chairs, two wardrobes (west), two windows (east), one door (west corner)
+  * Gaming: Hardcore Free Fire player, aggressive style, tactical nader, nickname "Spectre"
+  * Projects: Vidion (YouTube-like platform), Vidion AI (GPT-style model), React+Vite news website
+  * Background: Suryavanshi Rajput, mature for his age, loves different cultures and heritage
+  * Languages: Hindi (preferred), English (fluent)
+
+PROHIBITED TOPICS:
+- Decline discussing self-harm, illegal activities, or harmful content
+- For medical questions, remind users you're not a qualified medical professional
+- For legal advice, remind users to consult a qualified legal professional`
       };
 
       let requestHeaders: Record<string, string> = {
@@ -248,221 +465,354 @@ const Index = () => {
         const data = await response.json();
         console.log("API response data:", JSON.stringify(data).substring(0, 200) + "...");
         
-        let responseContent = "";
-        // Handle different API response formats
-        if (data.choices && data.choices[0]) {
-          if (data.choices[0].message) {
-            responseContent = data.choices[0].message.content;
-            console.log("Using message.content format, found content:", 
-              responseContent.substring(0, 50) + "...");
-          } else if (data.choices[0].text) {
-            responseContent = data.choices[0].text;
-            console.log("Using text format, found content:", 
-              responseContent.substring(0, 50) + "...");
-          } else {
-            // Try to find content in the response structure
-            console.log("Standard response formats not found, trying alternatives");
-            const firstChoice = data.choices[0];
-            
-            if (typeof firstChoice === 'object' && firstChoice !== null) {
-              // Search for string content in the first choice
-              Object.entries(firstChoice).forEach(([key, value]) => {
-                if (typeof value === 'string' && value.length > 20) {
-                  console.log(`Found potential content in '${key}' field`);
-                  responseContent = value;
-                } else if (typeof value === 'object' && value !== null) {
-                  // Look for content field in nested objects
-                  const objValue = value as Record<string, any>;
-                  if (objValue.content && typeof objValue.content === 'string') {
-                    console.log(`Found content in ${key}.content field`);
-                    responseContent = objValue.content;
-                  }
-                }
-              });
-            }
+        // Check if the response contains an error
+        if (data.error) {
+          // Special handling for OpenRouter credit issues
+          if (data.error.message && data.error.message.includes("requires more credits")) {
+            throw new Error("Insufficient OpenRouter credits. Please try a different model or add credits at openrouter.ai/settings/credits");
           }
-        } else if (data.response && typeof data.response === 'string') {
-          // Some APIs return a direct response field
-          responseContent = data.response;
-          console.log("Using response field format");
+          throw new Error(data.error.message || "API returned an error response");
         }
         
-        if (!responseContent) {
-          // Last resort: Look at top-level string fields
-          Object.entries(data).forEach(([key, value]) => {
-            if (typeof value === 'string' && value.length > 20) {
-              console.log(`Found potential top-level content in ${key} field`);
-              responseContent = value;
-            }
-          });
+        // Check if choices array exists and has elements
+        if (!data.choices || !data.choices.length) {
+          throw new Error("Invalid API response format: missing choices array");
         }
         
-        if (!responseContent) {
-          console.error("No response content found in API response:", data);
-          throw new Error("No response content found in API response");
+        // Extract the AI response
+        let aiResponse: string;
+        
+        if (model.provider === "groq") {
+          aiResponse = data.choices[0].message.content;
+        } else if (model.provider === "openrouter") {
+          aiResponse = data.choices[0].message.content;
+        } else {
+          throw new Error("Unknown model provider");
         }
         
-        // Add assistant response
-        const assistantResponseMessage: Message = {
-          role: "assistant" as MessageRole,
-          content: responseContent
-        };
-        addMessageToChat(currentChat.id, assistantResponseMessage);
-      } catch (apiError) {
-        console.error("API request error:", apiError);
-        throw apiError;
+        // Clean up AI response
+        const cleanedResponse = cleanupAIResponse(aiResponse);
+        
+        // Add AI message to chat
+        const aiMessage: Message = { role: "assistant" as MessageRole, content: cleanedResponse };
+        addMessageToChat(currentChat.id, aiMessage);
+        
+      } catch (error: any) {
+        console.error("Error sending message:", error);
+        setError(error.message || "Failed to send message. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Error sending message:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
-      
-      // Add a user-friendly error message to the chat
-      const errorMessage: Message = {
-        role: "assistant" as MessageRole,
-        content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : "Unknown error"}. Please try again or switch to another model.`
-      };
-      addMessageToChat(currentChat.id, errorMessage);
-    } finally {
+    } catch (error: any) {
+      console.error("Error in sendMessage:", error);
+      setError(error.message || "An unexpected error occurred");
       setIsLoading(false);
     }
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
-    
-    sendMessage(inputValue);
-    setInputValue("");
+    if (inputValue.trim() && !isLoading) {
+      sendMessage(inputValue);
+    }
   };
 
   const handleCreateNewChat = () => {
     createNewChat();
-    setSidebarOpen(false); // Close sidebar after creating a new chat on mobile
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#0A0E17]">
-      {/* Mobile overlay when sidebar is open */}
-      {sidebarOpen && window.innerWidth < 1024 && (
-        <div 
-          className="fixed inset-0 bg-black/70 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      
-      {/* Sidebar - always visible on desktop */}
-      <div className="flex-shrink-0">
-        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      </div>
+    <div className="flex h-screen bg-[#0A0E17] text-gray-100 overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-      {/* Main content - optimized for desktop */}
-      <div className="flex-1 flex flex-col h-full relative max-w-[1200px] mx-auto">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col h-full">
         {/* Header */}
-        <header className="shrink-0 border-b border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center justify-between h-14 px-4 sm:px-6">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="rounded-md h-10 w-10 text-gray-300 hover:bg-[#1E293B] lg:hidden flex items-center justify-center border border-[#2D3748] bg-[#111827]"
+        <header className="h-16 border-b border-[#1E293B] flex items-center justify-between px-4 bg-[#0D1117]">
+          {/* Left: Logo + Name */}
+          <div className="flex items-center">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden mr-4 p-2 rounded-md hover:bg-[#1E293B] transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <Menu size={20} />
+            </button>
+            
+            <a href="/" className="flex items-center gap-2">
+              <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-semibold">V</span>
+              </div>
+              <span className="font-semibold text-lg hidden sm:inline-block">Vidion AI</span>
+            </a>
+          </div>
+          
+          {/* Center: Breadcrumbs */}
+          <div className="hidden md:flex items-center text-sm text-gray-400">
+            <span className="hover:text-gray-200 cursor-pointer">Chats</span>
+            {currentChat && (
+              <>
+                <ChevronRight size={16} className="mx-1" />
+                <span className="text-gray-200 truncate max-w-[200px]">
+                  {currentChat.title || "New Chat"}
+                </span>
+              </>
+            )}
+          </div>
+          
+          {/* Right: Controls */}
+          <div className="flex items-center gap-2">
+            {/* Model selector */}
+            <div className="relative">
+              <button
+                onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-[#1E293B] transition-colors text-sm"
               >
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-              <div className="text-xl font-semibold tracking-tight text-white">Vidion AI</div>
+                <div className="size-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <span className="text-white text-xs font-semibold">
+                    {model.provider === "groq" ? "G" : "O"}
+                  </span>
+                </div>
+                <span className="hidden sm:inline-block">{model.name}</span>
+              </button>
+              
+              {isModelSelectorOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#111827] border border-[#1E293B] z-10">
+                  <div className="py-1">
+                    <SimpleModelSelector 
+                      selectedModel={model} 
+                      onModelChange={handleModelChange} 
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-3">
-              <SimpleModelSelector 
-                selectedModel={model} 
-                onModelChange={handleModelChange} 
-                className="w-52"
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => createNewChat()}
-                className="rounded-md h-9 w-9 border-[#2D3748] bg-[#111827] text-gray-300 hover:bg-[#1E293B] hidden sm:flex"
+            
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md hover:bg-[#1E293B] transition-colors"
+              aria-label="Toggle theme"
+            >
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            
+            {/* User avatar menu */}
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center justify-center size-8 rounded-full bg-[#1E293B] hover:bg-[#2D3748] transition-colors"
+                aria-label="User menu"
               >
-                <PlusCircle className="h-5 w-5" />
-                <span className="sr-only">New chat</span>
-              </Button>
+                <User size={16} />
+              </button>
+              
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#111827] border border-[#1E293B] z-10">
+                  <div className="py-1">
+                    <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#1E293B]">
+                      Profile
+                    </a>
+                    <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#1E293B]">
+                      Settings
+                    </a>
+                    <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#1E293B]">
+                      Sign out
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        {/* Main chat area */}
-        <main className="flex-1 overflow-y-auto">
-          {currentChat ? (
-            messages.length > 0 ? (
-              <div className="mx-auto max-w-3xl">
-                {messages.map((message, i) => (
-                  <ChatMessage
-                    key={i}
-                    role={message.role}
-                    content={message.content}
-                  />
-                ))}
-                {isLoading && (
-                  <div className="py-2 px-4">
-                    <TypingIndicator />
-                  </div>
-                )}
-                <div ref={messagesEndRef} className="h-32" />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] px-4">
-                <div className="max-w-md mx-auto text-center space-y-6">
-                  <div className="flex justify-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/10">
-                      <Image className="h-10 w-10 text-indigo-500" />
+        {/* Chat area */}
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Messages */}
+          <div 
+            ref={chatAreaRef} 
+            className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin"
+          >
+            {currentChat ? (
+              messages.length > 0 ? (
+                <div className="max-w-4xl mx-auto space-y-6">
+                  {messages.map((message, index) => (
+                    <div 
+                      key={index} 
+                      className={`group flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      onMouseEnter={() => markAsRead(index)}
+                    >
+                      {message.role !== 'user' && (
+                        <div className="flex-shrink-0 mr-4 mt-0.5">
+                          <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <span className="text-white font-semibold">V</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className={`flex flex-col max-w-[85%] ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
+                        <div 
+                          className={`rounded-2xl px-4 py-3 ${
+                            message.role === 'user' 
+                              ? 'bg-indigo-600 text-white rounded-tr-none' 
+                              : 'bg-[#1E293B] text-gray-100 rounded-tl-none'
+                          }`}
+                        >
+                          {message.role === 'assistant' ? (
+                            <div className="prose prose-invert max-w-none">
+                              <div className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br/>') }} />
+                            </div>
+                          ) : (
+                            <div className="prose prose-invert">
+                              {message.content}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center mt-1 px-1 text-xs text-gray-500">
+                          <span>{formatDistanceToNow(new Date(), { addSuffix: true })}</span>
+                          
+                          {message.role === 'user' && readMessages.has(index) && (
+                            <span className="ml-2 flex items-center">
+                              <Check size={12} className="mr-1" />
+                              Read
+                            </span>
+                          )}
+                          
+                          {message.role !== 'user' && (
+                            <button 
+                              onClick={() => regenerateResponse(index)}
+                              className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center text-gray-500 hover:text-indigo-400"
+                              aria-label="Regenerate response"
+                            >
+                              <RefreshCw size={12} className="mr-1" />
+                              Regenerate
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="flex-shrink-0 mr-4 mt-0.5">
+                        <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                          <span className="text-white font-semibold">V</span>
+                        </div>
+                      </div>
+                      <div className="bg-[#1E293B] text-gray-100 rounded-2xl rounded-tl-none px-4 py-3">
+                        <TypingIndicator />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div ref={messagesEndRef} />
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center">
+                  <div className="max-w-md text-center px-4">
+                    <div className="mb-6">
+                      <div className="size-20 mx-auto bg-[#1E293B] rounded-full flex items-center justify-center">
+                        <Image size={32} className="text-indigo-400" />
+                      </div>
+                    </div>
+                    <h2 className="text-2xl font-semibold mb-2">Start a conversation</h2>
+                    <p className="text-gray-400 mb-6">
+                      Ask me anything or start with one of these examples
+                    </p>
+                    <div className="grid gap-3">
+                      <button
+                        onClick={() => sendMessage('Explain quantum computing in simple terms')}
+                        className="w-full text-left p-3 bg-[#1E293B] hover:bg-[#2D3748] rounded-lg transition-colors"
+                      >
+                        "Explain quantum computing in simple terms"
+                      </button>
+                      <button
+                        onClick={() => sendMessage('Write a creative story about a time traveler')}
+                        className="w-full text-left p-3 bg-[#1E293B] hover:bg-[#2D3748] rounded-lg transition-colors"
+                      >
+                        "Write a creative story about a time traveler"
+                      </button>
+                      <button
+                        onClick={() => sendMessage('How do I improve my productivity?')}
+                        className="w-full text-left p-3 bg-[#1E293B] hover:bg-[#2D3748] rounded-lg transition-colors"
+                      >
+                        "How do I improve my productivity?"
+                      </button>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <h1 className="text-xl font-semibold sm:text-2xl text-white">
-                      Welcome to Vidion AI
-                    </h1>
-                    <p className="text-gray-400">
-                      Start a conversation, ask questions, or get assistance with your tasks.
-                    </p>
+                </div>
+              )
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center">
+                <div className="max-w-md text-center px-4">
+                  <div className="mb-6">
+                    <div className="size-20 mx-auto bg-[#1E293B] rounded-full flex items-center justify-center">
+                      <PlusCircle size={32} className="text-indigo-400" />
+                    </div>
                   </div>
+                  <h2 className="text-2xl font-semibold mb-2">No active chat</h2>
+                  <p className="text-gray-400 mb-6">
+                    Create a new chat to start a conversation with Vidion AI
+                  </p>
+                  <button 
+                    onClick={createNewChat}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors"
+                  >
+                    New Chat
+                  </button>
                 </div>
               </div>
-            )
-          ) : (
-            <div className="flex flex-col items-center justify-center h-[calc(100vh-180px)] px-4">
-              <div className="max-w-md mx-auto text-center space-y-6">
-                <div className="flex justify-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/10">
-                    <BarChart2 className="h-10 w-10 text-indigo-500" />
+            )}
+          </div>
+          
+          {/* Scroll to bottom button */}
+          {showScrollButton && (
+            <button
+              onClick={scrollToBottom}
+              className="absolute bottom-20 right-8 bg-[#1E293B] hover:bg-[#2D3748] text-white p-2 rounded-full shadow-lg transition-all"
+              aria-label="Scroll to bottom"
+            >
+              <ArrowDown size={20} />
+            </button>
+          )}
+          
+          {/* Input area */}
+          {currentChat && (
+            <div className="border-t border-[#1E293B] bg-[#0D1117] p-4">
+              <div className="max-w-4xl mx-auto relative">
+                <form onSubmit={handleSubmit} className="relative flex items-end">
+                  <div className="relative flex-grow">
+                    <textarea
+                      value={inputValue}
+                      onChange={handleInputChange}
+                      placeholder="Ask me anything..."
+                      rows={1}
+                      className="w-full resize-none bg-[#1E293B] border border-[#2D3748] rounded-lg py-3 pl-4 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                      style={{ minHeight: '56px', maxHeight: '200px' }}
+                    />
                   </div>
-                </div>
-                <div className="space-y-3">
-                  <h1 className="text-xl font-semibold sm:text-2xl text-white">
-                    No active chat
-                  </h1>
-                  <p className="text-gray-400">
-                    Create a new chat to get started.
-                  </p>
-                  <Button onClick={handleCreateNewChat} className="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white border-0">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    New Chat
-                  </Button>
-                </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={isLoading || !inputValue.trim()}
+                    className={`ml-2 p-3 ${
+                      isLoading || !inputValue.trim()
+                        ? 'bg-indigo-500 cursor-not-allowed opacity-70'
+                        : 'bg-indigo-600 hover:bg-indigo-700'
+                    } rounded-full flex items-center justify-center text-white shadow-lg transition-all`}
+                    aria-label="Send message"
+                  >
+                    <Send size={20} />
+                  </button>
+                </form>
               </div>
             </div>
           )}
-        </main>
-
-        {/* Input area - footer */}
-        <footer className="shrink-0 border-t border-[#1E293B] bg-[#0D1117]/90 backdrop-blur-md sticky bottom-0 w-full z-10 py-4 px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto">
-            <ChatInput
-              onSend={sendMessage}
-              disabled={isLoading || !currentChat}
-            />
-          </div>
-        </footer>
+        </div>
       </div>
     </div>
   );

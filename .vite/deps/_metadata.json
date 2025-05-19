@@ -1,0 +1,79 @@
+{
+  "hash": "5b448f87",
+  "configHash": "7b7b262c",
+  "lockfileHash": "593533e7",
+  "browserHash": "d7508e2e",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/.pnpm/react@18.3.1/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "7c8ceb50",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "2af5d214",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/.pnpm/react-router-dom@6.30.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "3dafe8e0",
+      "needsInterop": false
+    },
+    "next-themes": {
+      "src": "../../node_modules/.pnpm/next-themes@0.3.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next-themes/dist/index.mjs",
+      "file": "next-themes.js",
+      "fileHash": "4e9e1fdf",
+      "needsInterop": false
+    },
+    "sonner": {
+      "src": "../../node_modules/.pnpm/sonner@1.7.4_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/sonner/dist/index.mjs",
+      "file": "sonner.js",
+      "fileHash": "7f5571ad",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/.pnpm/react@18.3.1/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "a031226c",
+      "needsInterop": true
+    },
+    "lucide-react": {
+      "src": "../../node_modules/.pnpm/lucide-react@0.462.0_react@18.3.1/node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "4f50c234",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/.pnpm/axios@1.9.0/node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "b2b729c6",
+      "needsInterop": false
+    },
+    "uuid": {
+      "src": "../../node_modules/.pnpm/uuid@11.1.0/node_modules/uuid/dist/esm-browser/index.js",
+      "file": "uuid.js",
+      "fileHash": "d77f3189",
+      "needsInterop": false
+    },
+    "date-fns": {
+      "src": "../../node_modules/.pnpm/date-fns@3.6.0/node_modules/date-fns/index.mjs",
+      "file": "date-fns.js",
+      "fileHash": "bf6fc881",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-IM3RSAW5": {
+      "file": "chunk-IM3RSAW5.js"
+    },
+    "chunk-YF6YTEQP": {
+      "file": "chunk-YF6YTEQP.js"
+    },
+    "chunk-DC5AMYBS": {
+      "file": "chunk-DC5AMYBS.js"
+    }
+  }
+}

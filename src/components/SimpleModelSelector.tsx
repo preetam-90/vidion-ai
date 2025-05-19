@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 import { Model } from "@/types/chat";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, AlertTriangle } from "lucide-react";
 import { useModel } from "@/contexts";
 import { cn } from "@/lib/utils";
 
 interface SimpleModelSelectorProps {
-  selectedModel: Model;
+  selectedModel?: Model;
   onModelChange: (model: Model) => void;
   className?: string;
 }
 
 export function SimpleModelSelector({ selectedModel, onModelChange, className }: SimpleModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { availableModels } = useModel();
+  const { availableModels, model: contextModel } = useModel();
   
-  // Ensure we have a valid model
-  const currentModel = selectedModel || availableModels[0];
+  // Ensure we have a valid model - use selectedModel if provided, otherwise use model from context
+  const currentModel = selectedModel || contextModel || availableModels[0];
 
   // Log models on component mount
   useEffect(() => {
@@ -66,12 +66,27 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
                 <span className="truncate">{model.name}</span>
                 <span className="ml-2 text-xs text-gray-500 truncate shrink-0">({model.provider})</span>
                 {model.provider === "openrouter" && (
-                  <span className="ml-2 text-xs text-amber-500 shrink-0">
-                    (Beta)
-                  </span>
+                  <div className="flex items-center ml-2">
+                    <span className="text-xs text-amber-500 shrink-0 mr-1">
+                      (Beta)
+                    </span>
+                    <span title="Requires OpenRouter credits">
+                      <AlertTriangle className="w-3 h-3 text-amber-500" />
+                    </span>
+                  </div>
                 )}
               </button>
             ))}
+            
+            {/* OpenRouter credit warning */}
+            {availableModels.some(m => m.provider === "openrouter") && (
+              <div className="mt-1 pt-1 border-t border-[#2D3748] px-3 py-2">
+                <div className="flex items-start text-xs text-amber-500">
+                  <AlertTriangle className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
+                  <span>OpenRouter models require credits. Visit <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-400">openrouter.ai</a> for more info.</span>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

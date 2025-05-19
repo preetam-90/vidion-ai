@@ -10,6 +10,7 @@ interface ChatContextProps {
   addMessageToChat: (chatId: string, message: Message) => void;
   deleteChat: (chatId: string) => void;
   hasEmptyChat: () => boolean;
+  updateChatMessages: (chatId: string, messages: Message[]) => void;
 }
 
 const ChatContext = createContext<ChatContextProps>({
@@ -19,7 +20,8 @@ const ChatContext = createContext<ChatContextProps>({
   createNewChat: () => ({} as Chat),
   addMessageToChat: () => {},
   deleteChat: () => {},
-  hasEmptyChat: () => false
+  hasEmptyChat: () => false,
+  updateChatMessages: () => {}
 });
 
 export const useChat = () => useContext(ChatContext);
@@ -107,7 +109,27 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: uuidv4(),
       title: "New Chat",
       messages: [
-        { role: "system", content: "You are a helpful AI assistant." }
+        { role: "system", content: `You are Vidion AI, an advanced assistant created by Preetam.
+
+Your job is to provide answers that are:
+- Structured
+- Clean
+- Markdown-formatted
+- Easy to read
+
+Formatting rules:
+- Use **bold** to highlight key terms
+- Use *italics* for emphasis or clarity
+- Use \`inline code\` for commands or keywords
+- Use bullet points \`-\` or numbered steps \`1.\` for lists
+- Add \`###\` subheadings to organize long answers
+- Avoid dense paragraphs; keep sentences brief and spaced
+- Use horizontal lines \`---\` to separate sections (if needed)
+- End with a short, friendly closing or summary line
+
+IDENTITY: You are Vidion AI. NEVER start responses with "I am Vidion AI" or similar introductions. 
+ALWAYS end your responses with "I am Vidion AI, developed by Preetam." as a signature.
+Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI, OpenAI, Anthropic or any other company.` }
       ],
       createdAt: new Date(),
     };
@@ -168,6 +190,29 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const updateChatMessages = (chatId: string, messages: Message[]) => {
+    setChats((prevChats) => {
+      const updatedChats = prevChats.map((chat) => {
+        if (chat.id === chatId) {
+          const updatedChat = {
+            ...chat,
+            messages
+          };
+          
+          // Update current chat state if this is the current chat
+          if (currentChat && currentChat.id === chatId) {
+            setTimeout(() => setCurrentChatState(updatedChat), 0);
+          }
+          
+          return updatedChat;
+        }
+        return chat;
+      });
+      
+      return updatedChats;
+    });
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -177,7 +222,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createNewChat,
         addMessageToChat,
         deleteChat,
-        hasEmptyChat
+        hasEmptyChat,
+        updateChatMessages
       }}
     >
       {children}

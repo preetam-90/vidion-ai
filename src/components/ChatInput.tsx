@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useRef } from "react";
-import { Send, Mic, PaperclipIcon } from "lucide-react";
+import { Send, PaperclipIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -66,17 +66,6 @@ export const ChatInput = ({ onSend, disabled = false }: ChatInputProps) => {
             />
             
             <div className="absolute right-3 bottom-2.5 flex items-center gap-2">
-              <Button 
-                type="button" 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-full size-10 text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
-                disabled={disabled}
-              >
-                <Mic className="h-4.5 w-4.5" />
-                <span className="sr-only">Voice input</span>
-              </Button>
-              
               <Button 
                 type="submit"
                 size="icon" 
