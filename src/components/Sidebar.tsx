@@ -139,26 +139,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   <PlusIcon size={18} className="text-gray-400" />
                   <span className="text-sm">New Chat</span>
                 </button>
-                
-                <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-gray-300 hover:text-white hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)] transition-all duration-200">
-                  <MessageSquareIcon size={18} className="text-gray-400" />
-                  <span className="text-sm">Chats</span>
-                </a>
-                
-                <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-gray-300 hover:text-white hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)] transition-all duration-200">
-                  <StarIcon size={18} className="text-gray-400" />
-                  <span className="text-sm">Starred</span>
-                </a>
-                
-                <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-gray-300 hover:text-white hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)] transition-all duration-200">
-                  <BarChart2 size={18} className="text-gray-400" />
-                  <span className="text-sm">Analytics</span>
-                </a>
-                
-                <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-gray-300 hover:text-white hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)] transition-all duration-200">
-                  <Settings size={18} className="text-gray-400" />
-                  <span className="text-sm">Settings</span>
-                </a>
               </nav>
             </div>
             
