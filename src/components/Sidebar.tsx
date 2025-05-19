@@ -110,6 +110,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         {/* Content visible only when expanded */}
         {isOpen && (
           <>
+            {/* Header with collapse button */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E293B]">
+              <h1 className="text-lg font-medium text-gray-200">Vidion AI</h1>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="hidden lg:flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeftIcon size={18} />
+              </button>
+            </div>
+            
             {/* Search input at top */}
             <div className="p-4">
               <div className="relative">

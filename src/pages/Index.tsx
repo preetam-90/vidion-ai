@@ -520,78 +520,68 @@ PROHIBITED TOPICS:
   };
 
   return (
-    <div className="flex h-screen bg-[#0A0E17] text-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-[#0A0F18] overflow-hidden">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col h-full">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <header className="h-16 border-b border-[#1E293B] flex items-center justify-between px-4 bg-[#0D1117]">
-          {/* Left: Logo + Name */}
+        <header className="flex items-center justify-between px-4 py-3 bg-[#0D1117] border-b border-[#1E293B]">
           <div className="flex items-center">
+            {/* Hamburger menu for mobile/tablet */}
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden mr-4 p-2 rounded-md hover:bg-[#1E293B] transition-colors"
-              aria-label="Toggle sidebar"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden mr-3 p-2 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+              aria-label="Open sidebar"
             >
               <Menu size={20} />
             </button>
             
-            <a href="/" className="flex items-center gap-2">
-              <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <span className="text-white font-semibold">V</span>
-              </div>
-              <span className="font-semibold text-lg hidden sm:inline-block">Vidion AI</span>
-            </a>
-          </div>
-          
-          {/* Center: Breadcrumbs */}
-          <div className="hidden md:flex items-center text-sm text-gray-400">
-            <span className="hover:text-gray-200 cursor-pointer">Chats</span>
-            {currentChat && (
-              <>
-                <ChevronRight size={16} className="mx-1" />
-                <span className="text-gray-200 truncate max-w-[200px]">
-                  {currentChat.title || "New Chat"}
-                </span>
-              </>
-            )}
-          </div>
-          
-          {/* Right: Controls */}
-          <div className="flex items-center gap-2">
+            {/* Toggle sidebar button for desktop */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="hidden lg:flex items-center justify-center mr-3 p-2 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              {sidebarOpen ? <ChevronRight size={20} /> : <Menu size={20} />}
+            </button>
+
             {/* Model selector */}
             <div className="relative">
               <button
                 onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-[#1E293B] transition-colors text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#1E293B] text-gray-300 hover:bg-[#2D3748] text-sm"
               >
-                <div className="size-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white text-xs font-semibold">
-                    {model.provider === "groq" ? "G" : "O"}
-                  </span>
-                </div>
-                <span className="hidden sm:inline-block">{model.name}</span>
+                <span>{model.name}</span>
+                <ChevronRight
+                  size={16}
+                  className={`transform transition-transform ${
+                    isModelSelectorOpen ? "rotate-90" : ""
+                  }`}
+                />
               </button>
-              
+
               {isModelSelectorOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#111827] border border-[#1E293B] z-10">
-                  <div className="py-1">
-                    <SimpleModelSelector 
-                      selectedModel={model} 
-                      onModelChange={handleModelChange} 
-                      className="w-full"
-                    />
-                  </div>
-                </div>
+                <SimpleModelSelector onModelChange={handleModelChange} />
               )}
             </div>
-            
-            {/* Theme toggle */}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* New Chat Button */}
+            <button
+              onClick={handleCreateNewChat}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1E293B] text-gray-300 hover:bg-[#2D3748] text-sm"
+            >
+              <PlusCircle size={16} />
+              <span>New Chat</span>
+            </button>
+
+            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-[#1E293B] transition-colors"
+              className="p-2 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
               aria-label="Toggle theme"
             >
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
