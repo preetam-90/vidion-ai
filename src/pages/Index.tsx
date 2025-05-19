@@ -19,7 +19,6 @@ import {
   Moon,
   Sun,
   ChevronRight,
-  User,
   ArrowDown,
   RefreshCw,
   Paperclip,
@@ -151,7 +150,6 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
@@ -598,33 +596,6 @@ PROHIBITED TOPICS:
             >
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            
-            {/* User avatar menu */}
-            <div className="relative">
-              <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center justify-center size-8 rounded-full bg-[#1E293B] hover:bg-[#2D3748] transition-colors"
-                aria-label="User menu"
-              >
-                <User size={16} />
-              </button>
-              
-              {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#111827] border border-[#1E293B] z-10">
-                  <div className="py-1">
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#1E293B]">
-                      Profile
-                    </a>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#1E293B]">
-                      Settings
-                    </a>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#1E293B]">
-                      Sign out
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </header>
 
