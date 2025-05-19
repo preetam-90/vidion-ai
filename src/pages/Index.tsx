@@ -384,35 +384,21 @@ PROHIBITED TOPICS:
           max_tokens: 1000
         };
       } else if (model.provider === "openrouter") {
-        // OpenRouter API
-        const apiKey = "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";
-        console.log("Using OpenRouter with API key:", apiKey.substring(0, 10) + "...");
+        // OpenRouter API (Mercury model) per provided curl
+        // Use API key from environment variable (add VITE_OPENROUTER_API_KEY to .env)
+        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
+        console.log("Using OpenRouter with API key:", apiKey.slice(-6));
         requestHeaders = {
-          ...requestHeaders,
-          "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://vidionai.vercel.app",
-          "X-Title": "Vidion AI",
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
         };
-        
+        // Send only the single user message as per curl example
         requestBody = {
-          model: model.modelId,
+          model: model.modelId, // "inception/mercury-coder-small-beta"
           messages: [
-            systemMessage,
-            ...currentChat.messages.filter(msg => msg.role !== "system"),
-            { role: userMessage.role, content: userMessage.content }
-          ],
-          temperature: 0.3,
-          max_tokens: 500,
-          stream: false
+            { role: "user", content: userMessage.content }
+          ]
         };
-        
-        console.log("OpenRouter request:", {
-          endpoint: model.apiEndpoint,
-          model: model.modelId,
-          content: userMessage.content.substring(0, 30) + "...",
-          headers: Object.keys(requestHeaders)
-        });
       }
 
       console.log("Sending request to API:", model.apiEndpoint);
