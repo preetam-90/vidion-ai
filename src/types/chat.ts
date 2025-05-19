@@ -25,7 +25,7 @@ export interface Model {
 // Define models directly as constants to ensure they're properly initialized
 const GROQ_LLAMA3_8B: Model = {
   id: "groq-llama3-8b",
-  name: "Llama 3 (Groq)",
+  name: "Groq",
   provider: "groq",
   apiEndpoint: "https://api.groq.com/openai/v1/chat/completions",
   modelId: "llama3-8b-8192"
@@ -33,7 +33,7 @@ const GROQ_LLAMA3_8B: Model = {
 
 const OPENROUTER_MERCURY: Model = {
   id: "openrouter-mercury",
-  name: "Mercury DLLM (OpenRouter)",
+  name: "Mercury",
   provider: "openrouter",
   apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
   modelId: "inception/mercury-coder-small-beta"
@@ -51,5 +51,5 @@ const OPENROUTER_SONAR: Model = {
 export const AVAILABLE_MODELS: Model[] = [
   GROQ_LLAMA3_8B,
   OPENROUTER_MERCURY,
-  OPENROUTER_SONAR
+  // OPENROUTER_SONAR removed as requested
 ]; 

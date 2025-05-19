@@ -64,7 +64,6 @@ export function SimpleModelSelector({ selectedModel, onModelChange, className }:
                   )}
                 </div>
                 <span className="truncate">{model.name}</span>
-                <span className="ml-2 text-xs text-gray-500 truncate shrink-0">({model.provider})</span>
                 {model.provider === "openrouter" && (
                   <div className="flex items-center ml-2">
                     <span className="text-xs text-amber-500 shrink-0 mr-1">
