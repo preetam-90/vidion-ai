@@ -150,7 +150,6 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
 
@@ -207,20 +206,6 @@ const Index = () => {
 
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
-
-  // Handle model change
-  const handleModelChange = (newModel: Model) => {
-    try {
-      console.log("Changing model to:", newModel.name);
-      setModel(newModel);
-      setIsModelSelectorOpen(false);
-    } catch (error) {
-      console.error("Error changing model:", error);
-      toast.error("Error changing model", {
-        description: "Please try again later"
-      });
-    }
-  };
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -531,26 +516,6 @@ PROHIBITED TOPICS:
             >
               {sidebarOpen ? <ChevronRight size={20} /> : <Menu size={20} />}
             </button>
-
-            {/* Model selector */}
-            <div className="relative">
-              <button
-                onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#1E293B] text-gray-300 hover:bg-[#2D3748] text-sm"
-              >
-                <span>{model.name}</span>
-                <ChevronRight
-                  size={16}
-                  className={`transform transition-transform ${
-                    isModelSelectorOpen ? "rotate-90" : ""
-                  }`}
-                />
-              </button>
-
-              {isModelSelectorOpen && (
-                <SimpleModelSelector onModelChange={handleModelChange} />
-              )}
-            </div>
           </div>
 
           <div className="flex items-center gap-2">
