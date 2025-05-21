@@ -29,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model } from "@/types/chat";
 import { formatDistanceToNow } from "date-fns";
+import { performWebSearch, formatSearchResultsForAI } from "@/lib/serpApiService";
 
 // Function to clean up AI responses
 const cleanupAIResponse = (text: string): string => {
@@ -277,11 +278,26 @@ const Index = () => {
       
       // Log the current model being used
       console.log("Sending message using model:", model.name);
+      
+      // Check if the model has web search capability
+      let webSearchResults = "";
+      if (model.hasWebSearch) {
+        try {
+          console.log("Performing web search for:", content);
+          const searchResults = await performWebSearch(content);
+          webSearchResults = formatSearchResultsForAI(searchResults);
+          console.log("Web search results:", webSearchResults.substring(0, 200) + "...");
+        } catch (searchError) {
+          console.error("Error performing web search:", searchError);
+          webSearchResults = "Error performing web search. Proceeding without search results.";
+        }
+      }
 
       // Prepare common request parts
       const systemMessage = {
         role: "system",
         content: `You are Vidion AI, an advanced assistant created by Preetam.
+${model.hasWebSearch ? `\nWEB SEARCH RESULTS:\n${webSearchResults}\n\nUse the web search results above to help answer the user's question. If the search results don't contain relevant information, rely on your knowledge but acknowledge the limitations. Always cite sources when using information from search results.` : ''}
 
 Your job is to provide answers that are:
 - Structured
@@ -527,6 +543,9 @@ PROHIBITED TOPICS:
               <PlusCircle size={16} />
               <span>New Chat</span>
             </button>
+
+            {/* Model Selector */}
+            <SimpleModelSelector />
 
             {/* Theme Toggle */}
             <button
