@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Check, AlertTriangle, Globe } from "lucide-react";
+import { ChevronDown, Check, AlertTriangle } from "lucide-react";
 import { useModel } from "@/contexts";
 import { cn } from "@/lib/utils";
 import { AVAILABLE_MODELS, Model } from "@/types/chat";
@@ -19,10 +19,9 @@ export function SimpleModelSelector() {
       {/* Clickable button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-[#1E293B] hover:bg-[#2D3748] rounded-md text-sm text-gray-300 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-gray-200 dark:bg-[#1E293B] hover:bg-gray-300 dark:hover:bg-[#2D3748] rounded-md text-sm text-gray-700 dark:text-gray-300 transition-colors"
       >
         <span className="flex items-center gap-1.5">
-          {currentModel.hasWebSearch && <Globe size={14} className="text-indigo-400" />}
           {currentModel.name}
         </span>
         <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -38,16 +37,15 @@ export function SimpleModelSelector() {
           />
           
           {/* Dropdown content */}
-          <div className="absolute z-50 w-48 mt-1 bg-[#111827] border border-[#2D3748] rounded-md shadow-lg py-1">
+          <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-[#111827] border border-gray-300 dark:border-[#2D3748] rounded-md shadow-lg py-1">
             {/* List all available models */}
             {AVAILABLE_MODELS.map((m) => (
               <button
                 key={m.id}
                 onClick={() => handleSelect(m)}
-                className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-300 hover:bg-[#2D3748]"
+                className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2D3748]"
               >
                 <span className="flex items-center gap-1.5">
-                  {m.hasWebSearch && <Globe size={14} className="text-indigo-400" />}
                   {m.name}
                 </span>
                 {currentModel.id === m.id && <Check size={14} />}
@@ -56,8 +54,8 @@ export function SimpleModelSelector() {
             
             {/* OpenRouter credit warning */}
             {AVAILABLE_MODELS.some(m => m.provider === "openrouter") && (
-              <div className="mt-1 pt-1 border-t border-[#2D3748] px-3 py-2">
-                <div className="flex items-start text-xs text-amber-500">
+              <div className="mt-1 pt-1 border-t border-gray-300 dark:border-[#2D3748] px-3 py-2">
+                <div className="flex items-start text-xs text-amber-600 dark:text-amber-500">
                   <AlertTriangle className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
                   <span>OpenRouter models require credits.</span>
                 </div>

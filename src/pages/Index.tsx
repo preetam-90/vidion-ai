@@ -244,10 +244,10 @@ const Index = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       if (isDarkMode) {
-        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light-mode');
         localStorage.setItem('theme', 'dark');
       } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light-mode');
         localStorage.setItem('theme', 'light');
       }
     }
@@ -497,19 +497,19 @@ PROHIBITED TOPICS:
   };
 
   return (
-    <div className="flex h-screen bg-[#0A0F18] overflow-hidden">
+    <div className="flex h-screen bg-gray-100 dark:bg-[#0A0F18] overflow-hidden text-black dark:text-white">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between px-4 py-3 bg-[#0D1117] border-b border-[#1E293B]">
+        <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#0D1117] border-b border-gray-200 dark:border-[#1E293B]">
           <div className="flex items-center">
             {/* Hamburger menu for mobile/tablet */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden mr-3 p-2 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+              className="lg:hidden mr-3 p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-700 dark:hover:text-gray-300"
               aria-label="Open sidebar"
             >
               <Menu size={20} />
@@ -518,7 +518,7 @@ PROHIBITED TOPICS:
             {/* Toggle sidebar button for desktop */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="hidden lg:flex items-center justify-center mr-3 p-2 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+              className="hidden lg:flex items-center justify-center mr-3 p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-700 dark:hover:text-gray-300"
               aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             >
               {sidebarOpen ? <ChevronRight size={20} /> : <Menu size={20} />}
@@ -529,7 +529,7 @@ PROHIBITED TOPICS:
             {/* New Chat Button */}
             <button
               onClick={handleCreateNewChat}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1E293B] text-gray-300 hover:bg-[#2D3748] text-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-200 dark:bg-[#1E293B] text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-[#2D3748] text-sm"
             >
               <PlusCircle size={16} />
               <span>New Chat</span>
@@ -541,7 +541,7 @@ PROHIBITED TOPICS:
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300"
+              className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-700 dark:hover:text-gray-300"
               aria-label="Toggle theme"
             >
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
@@ -554,7 +554,7 @@ PROHIBITED TOPICS:
           {/* Messages */}
           <div 
             ref={chatAreaRef} 
-            className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin"
+            className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-200 dark:scrollbar-track-gray-800"
           >
             {currentChat ? (
               messages.length > 0 ? (
@@ -577,22 +577,22 @@ PROHIBITED TOPICS:
                         <div 
                           className={`rounded-2xl px-4 py-3 ${
                             message.role === 'user' 
-                              ? 'bg-indigo-600 text-white rounded-tr-none' 
-                              : 'bg-[#1E293B] text-gray-100 rounded-tl-none'
+                              ? 'bg-indigo-600 text-white rounded-tr-none'
+                              : 'bg-gray-200 dark:bg-[#1E293B] text-gray-800 dark:text-gray-100 rounded-tl-none'
                           }`}
                         >
                           {message.role === 'assistant' ? (
-                            <div className="prose prose-invert max-w-none">
+                            <div className="prose dark:prose-invert max-w-none">
                               <div className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br/>') }} />
                             </div>
                           ) : (
-                            <div className="prose prose-invert">
+                            <div className="prose dark:prose-invert">
                               {message.content}
                             </div>
                           )}
                         </div>
                         
-                        <div className="flex items-center mt-1 px-1 text-xs text-gray-500">
+                        <div className="flex items-center mt-1 px-1 text-xs text-gray-500 dark:text-gray-400">
                           <span>{formatDistanceToNow(new Date(), { addSuffix: true })}</span>
                           
                           {message.role === 'user' && readMessages.has(index) && (
@@ -605,7 +605,7 @@ PROHIBITED TOPICS:
                           {message.role !== 'user' && (
                             <button 
                               onClick={() => regenerateResponse(index)}
-                              className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center text-gray-500 hover:text-indigo-400"
+                              className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400"
                               aria-label="Regenerate response"
                             >
                               <RefreshCw size={12} className="mr-1" />
@@ -624,7 +624,7 @@ PROHIBITED TOPICS:
                           <span className="text-white font-semibold">V</span>
                         </div>
                       </div>
-                      <div className="bg-[#1E293B] text-gray-100 rounded-2xl rounded-tl-none px-4 py-3">
+                      <div className="bg-gray-200 dark:bg-[#1E293B] text-gray-800 dark:text-gray-100 rounded-2xl rounded-tl-none px-4 py-3">
                         <TypingIndicator />
                       </div>
                     </div>
@@ -636,33 +636,28 @@ PROHIBITED TOPICS:
                 <div className="h-full flex flex-col items-center justify-center">
                   <div className="max-w-md text-center px-4">
                     <div className="mb-6">
-                      <div className="size-20 mx-auto bg-[#1E293B] rounded-full flex items-center justify-center">
-                        <Image size={32} className="text-indigo-400" />
+                      <div className="size-20 mx-auto bg-gray-200 dark:bg-[#1E293B] rounded-full flex items-center justify-center">
+                        <Image size={32} className="text-indigo-500 dark:text-indigo-400" />
                       </div>
                     </div>
-                    <h2 className="text-2xl font-semibold mb-2">Start a conversation</h2>
-                    <p className="text-gray-400 mb-6">
+                    <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-white">Start a conversation</h2>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">
                       Ask me anything or start with one of these examples
                     </p>
                     <div className="grid gap-3">
-                      <button
-                        onClick={() => sendMessage('Explain quantum computing in simple terms')}
-                        className="w-full text-left p-3 bg-[#1E293B] hover:bg-[#2D3748] rounded-lg transition-colors"
-                      >
-                        "Explain quantum computing in simple terms"
-                      </button>
-                      <button
-                        onClick={() => sendMessage('Write a creative story about a time traveler')}
-                        className="w-full text-left p-3 bg-[#1E293B] hover:bg-[#2D3748] rounded-lg transition-colors"
-                      >
-                        "Write a creative story about a time traveler"
-                      </button>
-                      <button
-                        onClick={() => sendMessage('How do I improve my productivity?')}
-                        className="w-full text-left p-3 bg-[#1E293B] hover:bg-[#2D3748] rounded-lg transition-colors"
-                      >
-                        "How do I improve my productivity?"
-                      </button>
+                      {[
+                        'Explain quantum computing in simple terms',
+                        'Write a creative story about a time traveler',
+                        'How do I improve my productivity?'
+                      ].map(prompt => (
+                        <button
+                          key={prompt}
+                          onClick={() => sendMessage(prompt)}
+                          className="w-full text-left p-3 bg-gray-200 dark:bg-[#1E293B] hover:bg-gray-300 dark:hover:bg-[#2D3748] rounded-lg transition-colors text-gray-700 dark:text-gray-300"
+                        >
+                          {`"${prompt}"`}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -671,12 +666,12 @@ PROHIBITED TOPICS:
               <div className="h-full flex flex-col items-center justify-center">
                 <div className="max-w-md text-center px-4">
                   <div className="mb-6">
-                    <div className="size-20 mx-auto bg-[#1E293B] rounded-full flex items-center justify-center">
-                      <PlusCircle size={32} className="text-indigo-400" />
+                    <div className="size-20 mx-auto bg-gray-200 dark:bg-[#1E293B] rounded-full flex items-center justify-center">
+                      <PlusCircle size={32} className="text-indigo-500 dark:text-indigo-400" />
                     </div>
                   </div>
-                  <h2 className="text-2xl font-semibold mb-2">No active chat</h2>
-                  <p className="text-gray-400 mb-6">
+                  <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-white">No active chat</h2>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">
                     Create a new chat to start a conversation with Vidion AI
                   </p>
                   <button 
@@ -690,9 +685,8 @@ PROHIBITED TOPICS:
             )}
           </div>
           
-          {/* Show streaming controls at the bottom if streaming */}
           {isStreaming && (
-            <div className="fixed bottom-24 right-4 bg-[#1E293B] p-2 rounded-md shadow-lg z-10">
+            <div className="fixed bottom-24 right-4 bg-gray-200 dark:bg-[#1E293B] p-2 rounded-md shadow-lg z-10">
               <Button
                 variant="destructive"
                 size="sm"
@@ -704,20 +698,18 @@ PROHIBITED TOPICS:
             </div>
           )}
           
-          {/* Scroll to bottom button */}
           {showScrollButton && (
             <button
               onClick={scrollToBottom}
-              className="absolute bottom-20 right-8 bg-[#1E293B] hover:bg-[#2D3748] text-white p-2 rounded-full shadow-lg transition-all"
+              className="absolute bottom-20 right-8 bg-gray-300 dark:bg-[#2D3748] hover:bg-gray-400 dark:hover:bg-[#3E4A5B] text-gray-800 dark:text-white p-2 rounded-full shadow-lg transition-all"
               aria-label="Scroll to bottom"
             >
               <ArrowDown size={20} />
             </button>
           )}
           
-          {/* Input area */}
           {currentChat && (
-            <div className="border-t border-[#1E293B] bg-[#0D1117] p-4">
+            <div className="border-t border-gray-200 dark:border-[#1E293B] bg-white dark:bg-[#0D1117] p-4">
               <div className="max-w-4xl mx-auto relative">
                 <form onSubmit={handleSubmit} className="relative flex items-end">
                   <div className="relative flex-grow">
@@ -726,7 +718,7 @@ PROHIBITED TOPICS:
                       onChange={handleInputChange}
                       placeholder="Ask me anything..."
                       rows={1}
-                      className="w-full resize-none bg-[#1E293B] border border-[#2D3748] rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full resize-none bg-gray-200 dark:bg-[#1E293B] border border-gray-300 dark:border-[#2D3748] rounded-lg py-3 px-4 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400"
                       style={{ minHeight: '56px', maxHeight: '200px' }}
                     />
                   </div>
@@ -736,8 +728,8 @@ PROHIBITED TOPICS:
                     disabled={isLoading || !inputValue.trim()}
                     className={`ml-2 p-3 ${
                       isLoading || !inputValue.trim()
-                        ? 'bg-indigo-500 cursor-not-allowed opacity-70'
-                        : 'bg-indigo-600 hover:bg-indigo-700'
+                        ? 'bg-indigo-400 dark:bg-indigo-500 cursor-not-allowed opacity-70'
+                        : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700'
                     } rounded-full flex items-center justify-center text-white shadow-lg transition-all`}
                     aria-label="Send message"
                   >
