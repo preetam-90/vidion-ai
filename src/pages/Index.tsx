@@ -24,13 +24,11 @@ import {
   Paperclip,
   Smile,
   Slash,
-  Check,
-  Globe
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model } from "@/types/chat";
 import { formatDistanceToNow } from "date-fns";
-import { performWebSearch, formatSearchResultsForAI } from "@/lib/serpApiService";
 
 // Function to clean up AI responses
 const cleanupAIResponse = (text: string): string => {
@@ -154,8 +152,6 @@ const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
-  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
-  const [messagesWithWebSearch, setMessagesWithWebSearch] = useState<Set<number>>(new Set());
 
   // Set initial sidebar state based on screen size
   useEffect(() => {
@@ -244,17 +240,6 @@ const Index = () => {
       return;
     }
     
-    // Check if the original response used web search
-    const usedWebSearch = messagesWithWebSearch.has(assistantMessageIndex);
-    
-    // If web search was used but is now disabled, or vice versa, show a toast
-    if (usedWebSearch !== webSearchEnabled) {
-      toast.info(
-        webSearchEnabled ? "Web search will be used" : "Web search will not be used", 
-        { description: webSearchEnabled ? "The regenerated response will include web search results" : "The regenerated response will use AI's knowledge only" }
-      );
-    }
-    
     const userContent = msgs[userIdx].content;
     // Truncate messages to before the assistant response
     const truncated = msgs.slice(0, assistantMessageIndex);
@@ -263,12 +248,6 @@ const Index = () => {
     const newMsgs = [...systemMsgs, ...truncated];
     // Update chat context with truncated messages
     updateChatMessages(currentChat.id, newMsgs);
-    // Remove the message from the web search set
-    setMessagesWithWebSearch(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(assistantMessageIndex);
-      return newSet;
-    });
     // Trigger new response
     setIsLoading(true);
     await sendMessage(userContent);
@@ -299,38 +278,11 @@ const Index = () => {
       
       // Log the current model being used
       console.log("Sending message using model:", model.name);
-      
-      // Check if web search is enabled (either by model capability or toggle)
-      let webSearchResults = "";
-      if (webSearchEnabled || model.hasWebSearch) {
-        try {
-          console.log("Performing web search for:", content);
-          toast.info("Searching DuckDuckGo...", { 
-            description: "Looking for the most relevant information",
-            duration: 3000
-          });
-          const searchResults = await performWebSearch(content);
-          webSearchResults = formatSearchResultsForAI(searchResults);
-          console.log("Web search results:", webSearchResults.substring(0, 200) + "...");
-          toast.success("DuckDuckGo search complete", { 
-            description: `Found ${searchResults.length} relevant results`,
-            duration: 3000
-          });
-                  } catch (searchError) {
-            console.error("Error performing web search:", searchError);
-            webSearchResults = "Error performing web search. Proceeding without search results.";
-            toast.error("DuckDuckGo search failed", { 
-              description: "Continuing with AI's knowledge base only",
-              duration: 3000
-            });
-          }
-      }
 
       // Prepare common request parts
       const systemMessage = {
         role: "system",
         content: `You are Vidion AI, an advanced assistant created by Preetam.
-${(webSearchEnabled || model.hasWebSearch) && webSearchResults ? `\nWEB SEARCH RESULTS:\n${webSearchResults}\n\nUse the web search results above to help answer the user's question. If the search results don't contain relevant information, rely on your knowledge but acknowledge the limitations. Always cite sources when using information from search results.` : ''}
 
 Your job is to provide answers that are:
 - Structured
@@ -390,13 +342,8 @@ PROHIBITED TOPICS:
       };
       
       // Initialize request body with proper typing
-      let requestBody: {
-        model?: string;
-        messages?: any[];
-        temperature?: number;
-        max_tokens?: number;
-        stream?: boolean;
-      } = {};
+      let requestBody: any = {};
+      let apiEndpoint: string = '';
       
       // Configure API call based on model provider
       if (model.provider === "groq") {
@@ -514,15 +461,6 @@ PROHIBITED TOPICS:
         const aiMessage: Message = { role: "assistant" as MessageRole, content: cleanedResponse };
         addMessageToChat(currentChat.id, aiMessage);
         
-        // Track if this message used web search
-        if (webSearchEnabled || model.hasWebSearch) {
-          setMessagesWithWebSearch(prev => {
-            const newSet = new Set(prev);
-            newSet.add(messages.length); // Index of the new assistant message
-            return newSet;
-          });
-        }
-        
       } catch (error: any) {
         console.error("Error sending message:", error);
         setError(error.message || "Failed to send message. Please try again.");
@@ -589,22 +527,6 @@ PROHIBITED TOPICS:
             {/* Model Selector */}
             <SimpleModelSelector />
 
-            {/* Web Search Toggle */}
-            <button
-              onClick={() => {
-                setWebSearchEnabled(!webSearchEnabled);
-                toast.success(
-                  webSearchEnabled ? "Web search disabled" : "Web search enabled", 
-                  { description: webSearchEnabled ? "AI will use its training data only" : "AI will search DuckDuckGo for latest information" }
-                );
-              }}
-              className={`p-2 rounded-md ${webSearchEnabled ? 'text-indigo-400 bg-[#1E293B]' : 'text-gray-400'} hover:bg-[#1E293B] hover:text-indigo-400`}
-              aria-label="Toggle web search"
-              title={webSearchEnabled ? "Disable web search" : "Enable DuckDuckGo search"}
-            >
-              <Globe size={18} />
-            </button>
-
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -666,13 +588,6 @@ PROHIBITED TOPICS:
                             <span className="ml-2 flex items-center">
                               <Check size={12} className="mr-1" />
                               Read
-                            </span>
-                          )}
-                          
-                          {message.role !== 'user' && messagesWithWebSearch.has(index) && (
-                            <span className="ml-2 flex items-center text-indigo-400">
-                              <Globe size={12} className="mr-1" />
-                              Web
                             </span>
                           )}
                           
@@ -781,18 +696,12 @@ PROHIBITED TOPICS:
               <div className="max-w-4xl mx-auto relative">
                 <form onSubmit={handleSubmit} className="relative flex items-end">
                   <div className="relative flex-grow">
-                    {webSearchEnabled && (
-                      <div className="absolute left-3 top-3 flex items-center text-xs text-indigo-400 gap-1 bg-[#1A202C] px-1.5 py-0.5 rounded-md">
-                        <Globe size={12} />
-                        <span>Web Search</span>
-                      </div>
-                    )}
                     <textarea
                       value={inputValue}
                       onChange={handleInputChange}
-                      placeholder={webSearchEnabled ? "Ask me anything (with web search)..." : "Ask me anything..."}
+                      placeholder="Ask me anything..."
                       rows={1}
-                      className={`w-full resize-none bg-[#1E293B] border ${webSearchEnabled ? 'border-indigo-500/50' : 'border-[#2D3748]'} rounded-lg py-3 ${webSearchEnabled ? 'pl-[105px]' : 'pl-4'} pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500`}
+                      className="w-full resize-none bg-[#1E293B] border border-[#2D3748] rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                       style={{ minHeight: '56px', maxHeight: '200px' }}
                     />
                   </div>
