@@ -7,6 +7,7 @@ import { useModel } from "@/contexts";
 import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";
+import { useStreamingResponse } from "@/hooks/useStreamingResponse";
 import { 
   Menu, 
   PlusCircle, 
@@ -24,7 +25,8 @@ import {
   Paperclip,
   Smile,
   Slash,
-  Check
+  Check,
+  Square
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Message, MessageRole, Model } from "@/types/chat";
@@ -152,6 +154,23 @@ const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
+  const [streamingSpeed, setStreamingSpeed] = useState(10); // Default streaming speed
+  const [useServerStreaming, setUseServerStreaming] = useState(true); // Whether to use server-side streaming
+
+  // Initialize the streaming response hook
+  const {
+    isStreaming,
+    streamingContent,
+    error: streamingError,
+    handleServerSentEvents,
+    simulateStreaming,
+    stopStreaming
+  } = useStreamingResponse({
+    currentChatId: currentChat?.id,
+    addMessageToChat,
+    updateChatMessages,
+    streamingSpeed
+  });
 
   // Set initial sidebar state based on screen size
   useEffect(() => {
@@ -186,6 +205,15 @@ const Index = () => {
       });
     }
   }, [error]);
+
+  // Show error toast when streaming error occurs
+  useEffect(() => {
+    if (streamingError) {
+      toast.error("Streaming Error", {
+        description: streamingError,
+      });
+    }
+  }, [streamingError]);
 
   // Check scroll position to show/hide scroll button
   useEffect(() => {
@@ -276,6 +304,9 @@ const Index = () => {
       setError(null);
       setInputValue(""); // Clear input after sending
       
+      // Get the updated messages array after adding the user message
+      const currentMessages = currentChat.messages;
+      
       // Log the current model being used
       console.log("Sending message using model:", model.name);
 
@@ -343,7 +374,6 @@ PROHIBITED TOPICS:
       
       // Initialize request body with proper typing
       let requestBody: any = {};
-      let apiEndpoint: string = '';
       
       // Configure API call based on model provider
       if (model.provider === "groq") {
@@ -385,85 +415,31 @@ PROHIBITED TOPICS:
       console.log("Sending request to API:", model.apiEndpoint);
       
       try {
-        // Add timeout handling for API calls
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        // Check if the model supports streaming and if we want to use it
+        const supportsStreaming = model.provider === "groq"; // Add other providers that support streaming
         
-        let response;
-        try {
-          response = await fetch(model.apiEndpoint, {
-            method: "POST",
-            headers: requestHeaders,
-            body: JSON.stringify(requestBody),
-            signal: controller.signal
-          });
-        } catch (err: any) {
-          if (err.name === "AbortError") {
-            throw new Error("Request timed out after 10 seconds");
-          }
-          throw err;
-        } finally {
-          clearTimeout(timeoutId);
-        }
-
-        console.log("API response status:", response.status);
-        
-        if (!response.ok) {
-          let errorMessage = `Failed to get response from ${model.name} (Status: ${response.status})`;
-          try {
-            const errorData = await response.json();
-            console.error("API error:", errorData);
-            errorMessage = errorData.error?.message || errorMessage;
-          } catch (jsonError) {
-            console.error("Error parsing error response:", jsonError);
-          }
-          throw new Error(errorMessage);
-        }
-
-        // Try to log the response headers
-        console.log("Response headers:", 
-          Array.from(response.headers.entries())
-            .map(([k, v]) => `${k}: ${v.substring(0, 50)}${v.length > 50 ? '...' : ''}`)
-        );
-
-        const data = await response.json();
-        console.log("API response data:", JSON.stringify(data).substring(0, 200) + "...");
-        
-        // Check if the response contains an error
-        if (data.error) {
-          // Special handling for OpenRouter credit issues
-          if (data.error.message && data.error.message.includes("requires more credits")) {
-            throw new Error("Insufficient OpenRouter credits. Please try a different model or add credits at openrouter.ai/settings/credits");
-          }
-          throw new Error(data.error.message || "API returned an error response");
-        }
-        
-        // Check if choices array exists and has elements
-        if (!data.choices || !data.choices.length) {
-          throw new Error("Invalid API response format: missing choices array");
-        }
-        
-        // Extract the AI response
-        let aiResponse: string;
-        
-        if (model.provider === "groq") {
-          aiResponse = data.choices[0].message.content;
-        } else if (model.provider === "openrouter") {
-          aiResponse = data.choices[0].message.content;
+        if (supportsStreaming && useServerStreaming) {
+          // Use server-sent events streaming
+          await handleServerSentEvents(
+            model.apiEndpoint,
+            requestHeaders,
+            requestBody,
+            currentMessages
+          );
         } else {
-          throw new Error("Unknown model provider");
+          // Use simulated streaming
+          await simulateStreaming(
+            model.apiEndpoint,
+            requestHeaders,
+            requestBody,
+            currentMessages,
+            cleanupAIResponse
+          );
         }
         
-        // Clean up AI response
-        const cleanedResponse = cleanupAIResponse(aiResponse);
-        
-        // Add AI message to chat
-        const aiMessage: Message = { role: "assistant" as MessageRole, content: cleanedResponse };
-        addMessageToChat(currentChat.id, aiMessage);
-        
-      } catch (error: any) {
-        console.error("Error sending message:", error);
-        setError(error.message || "Failed to send message. Please try again.");
+      } catch (err: any) {
+        console.error("Error in streaming:", err);
+        setError(err.message || "Failed to send message. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -483,6 +459,25 @@ PROHIBITED TOPICS:
 
   const handleCreateNewChat = () => {
     createNewChat();
+  };
+
+  // Add a function to toggle streaming mode
+  const toggleStreamingMode = () => {
+    setUseServerStreaming(!useServerStreaming);
+    toast.success(
+      !useServerStreaming 
+        ? "Server streaming enabled" 
+        : "Client-side streaming simulation enabled"
+    );
+  };
+
+  // Add a function to adjust streaming speed
+  const adjustStreamingSpeed = (faster: boolean) => {
+    setStreamingSpeed(prev => {
+      const newSpeed = faster ? Math.max(1, prev - 2) : Math.min(50, prev + 2);
+      toast.success(`Typing speed: ${faster ? 'Faster' : 'Slower'}`);
+      return newSpeed;
+    });
   };
 
   return (
@@ -678,6 +673,20 @@ PROHIBITED TOPICS:
               </div>
             )}
           </div>
+          
+          {/* Show streaming controls at the bottom if streaming */}
+          {isStreaming && (
+            <div className="fixed bottom-24 right-4 bg-[#1E293B] p-2 rounded-md shadow-lg z-10">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={stopStreaming}
+                className="text-xs"
+              >
+                Stop Generating
+              </Button>
+            </div>
+          )}
           
           {/* Scroll to bottom button */}
           {showScrollButton && (
