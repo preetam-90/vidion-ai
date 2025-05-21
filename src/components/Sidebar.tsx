@@ -74,13 +74,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   return (
     <div
       ref={sidebarRef}
-      className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#0D1117] transform transition-all duration-300 ease-in-out 
+      className={`fixed inset-y-0 left-0 z-50 bg-[#0D1117] transform transition-all duration-300 ease-in-out 
         ${isOpen 
           ? "translate-x-0 w-[280px] sm:w-[300px]" 
           : "translate-x-[-100%] lg:translate-x-0 w-[70px]"
         } 
         ${!isOpen && "lg:flex hidden"}
-        h-full flex flex-col shadow-lg border-r border-gray-200 dark:border-[#1E293B]`}
+        h-full flex flex-col shadow-lg border-r border-[#1E293B]`}
     >
       <div className="flex flex-col h-full max-h-screen overflow-hidden">
         {/* In collapsed mode, show the vertical bar with buttons - DESKTOP ONLY */}
@@ -90,7 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <button 
               ref={toggleBtnRef}
               onClick={() => setIsOpen(true)}
-              className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-[#111827] rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+              className="flex items-center justify-center w-10 h-10 bg-[#111827] rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
               aria-label="Expand sidebar"
             >
               <ChevronRightIcon size={20} />
@@ -99,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             {/* Second button: New chat */}
             <button
               onClick={handleCreateNewChat}
-              className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-[#111827] rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+              className="flex items-center justify-center w-10 h-10 bg-[#111827] rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
               aria-label="New chat"
             >
               <PlusIcon size={20} />
@@ -111,11 +111,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         {isOpen && (
           <>
             {/* Header with collapse button */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#1E293B]">
-              <h1 className="text-lg font-medium text-gray-800 dark:text-gray-200">Vidion AI</h1>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E293B]">
+              <h1 className="text-lg font-medium text-gray-200">Vidion AI</h1>
               <button
                 onClick={() => setIsOpen(false)}
-                className="hidden lg:flex items-center justify-center w-8 h-8 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+                className="hidden lg:flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:bg-[#1E293B] hover:text-gray-300 transition-colors"
                 aria-label="Collapse sidebar"
               >
                 <ChevronLeftIcon size={18} />
@@ -126,12 +126,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <div className="p-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <SearchIcon size={16} className="text-gray-500 dark:text-gray-400" />
+                  <SearchIcon size={16} className="text-gray-400" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search chats..."
-                  className="w-full pl-10 pr-12 py-2 bg-gray-100 dark:bg-[#111827] border border-gray-300 dark:border-[#2D3748] rounded-md text-sm text-gray-800 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full pl-10 pr-12 py-2 bg-[#111827] border border-[#2D3748] rounded-md text-sm text-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -146,9 +146,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               <nav className="space-y-1">
                 <button
                   onClick={handleCreateNewChat}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)] transition-all duration-200"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-gray-300 hover:text-white hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)] transition-all duration-200"
                 >
-                  <PlusIcon size={18} className="text-gray-600 dark:text-gray-400" />
+                  <PlusIcon size={18} className="text-gray-400" />
                   <span className="text-sm">New Chat</span>
                 </button>
               </nav>
@@ -168,14 +168,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                         key={chat.id}
                         className={`group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer transition-all duration-200 ${
                           currentChat?.id === chat.id
-                            ? "bg-indigo-50 dark:bg-[#1E293B] text-indigo-700 dark:text-white shadow-[0_0_15px_rgba(79,70,229,0.15)]"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)]"
+                            ? "bg-[#1E293B] text-white shadow-[0_0_15px_rgba(79,70,229,0.15)]"
+                            : "text-gray-300 hover:bg-[#111827] hover:shadow-[0_0_10px_rgba(79,70,229,0.1)]"
                         }`}
                         onClick={() => handleChatClick(chat)}
                       >
                         <MessageSquareIcon
                           size={16}
-                          className="shrink-0 text-gray-500 dark:text-gray-400"
+                          className="shrink-0 text-gray-400"
                         />
                         <div className="truncate flex-1">{chat.title || "New Chat"}</div>
                         <button
@@ -183,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                             e.stopPropagation();
                             deleteChat(chat.id);
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#2D3748] hover:text-gray-700 dark:hover:text-gray-300 transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-gray-400 hover:bg-[#2D3748] hover:text-gray-300 transition-opacity"
                           aria-label="Delete chat"
                         >
                           <TrashIcon size={14} />
@@ -195,8 +195,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               </div>
             </div>
 
-            <div className="mt-auto p-4 border-t border-gray-200 dark:border-[#1E293B] shrink-0">
-              <div className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#111827] cursor-pointer transition-colors">
+            <div className="mt-auto p-4 border-t border-[#1E293B] shrink-0">
+              <div className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-300 hover:bg-[#111827] cursor-pointer transition-colors">
                 <div className="size-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                   <span className="text-white font-semibold">V</span>
                 </div>

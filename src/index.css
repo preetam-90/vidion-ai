@@ -51,48 +51,6 @@
     --transition-medium: 200ms;
     --transition-fast: 150ms;
   }
-
-  .light-mode {
-    /* Light Mode Palette */
-    --background: 0 0% 100%;
-    --foreground: 220 10% 10%;
-
-    --muted: 220 10% 92%;
-    --muted-foreground: 220 10% 40%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 10% 10%;
-
-    --card: 0 0% 98%;
-    --card-foreground: 220 10% 10%;
-
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-
-    --primary: 250 95% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 13% 96%;
-    --secondary-foreground: 220 10% 10%;
-
-    --accent: 250 95% 60%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 60% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --ring: 250 95% 60%;
-
-    /* Sidebar variables */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 220 10% 10%;
-    --sidebar-primary: 250 95% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 250 95% 60%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 13% 90%;
-    --sidebar-ring: 250 95% 60%;
-  }
 }
 
 @layer base {
@@ -126,10 +84,6 @@
   a {
     @apply text-indigo-400 hover:text-indigo-300 transition-colors;
   }
-
-  .light-mode a {
-    @apply text-indigo-600 hover:text-indigo-700;
-  }
   
   /* Custom prose (markdown) styles */
   .prose {
@@ -142,10 +96,6 @@
   
   .prose a {
     @apply text-indigo-400 hover:text-indigo-300 no-underline hover:underline transition-colors;
-  }
-
-  .light-mode .prose a {
-    @apply text-indigo-600 hover:text-indigo-700;
   }
   
   .prose h1, 
@@ -266,14 +216,6 @@
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(156, 163, 175, 0.5);
   }
-
-  .light-mode ::-webkit-scrollbar-thumb {
-    background: rgba(100, 116, 139, 0.3);
-  }
-  
-  .light-mode ::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 116, 139, 0.5);
-  }
   
   /* Hide scrollbar for mobile */
   @media (max-width: 768px) {
@@ -321,10 +263,6 @@
 
   .card-hover:hover {
     @apply shadow-[0_0_15px_rgba(79,70,229,0.15)];
-  }
-
-  .light-mode .card-hover:hover {
-    @apply shadow-[0_0_15px_rgba(79,70,229,0.1)];
   }
 
   /* Input focus styles */

@@ -17,8 +17,6 @@ import {
   Image, 
   MoreHorizontal, 
   Send, 
-  Moon,
-  Sun,
   ChevronRight,
   ArrowDown,
   RefreshCw,
@@ -151,16 +149,6 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const storedPreference = localStorage.getItem('theme');
-      if (storedPreference) {
-        return storedPreference === 'dark';
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return true; // Default to dark mode if window is not available (e.g., SSR)
-  });
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
   const [streamingSpeed, setStreamingSpeed] = useState(10);
@@ -200,30 +188,13 @@ const Index = () => {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Initialize dark mode from localStorage or system preference
+  // Ensure dark mode is always applied
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedPreference = localStorage.getItem('theme');
-      if (storedPreference) {
-        setIsDarkMode(storedPreference === 'dark');
-      } else {
-        setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-      }
+      document.documentElement.classList.remove('light-mode');
+      localStorage.setItem('theme', 'dark');
     }
   }, []);
-
-  // Apply theme class and save to localStorage when isDarkMode changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (isDarkMode) {
-        document.documentElement.classList.remove('light-mode');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.add('light-mode');
-        localStorage.setItem('theme', 'light');
-      }
-    }
-  }, [isDarkMode]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -267,10 +238,6 @@ const Index = () => {
 
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
-
-  const toggleTheme = () => {
-    setIsDarkMode(prevMode => !prevMode);
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -549,15 +516,6 @@ PROHIBITED TOPICS:
 
             {/* Model Selector */}
             <SimpleModelSelector />
-
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#1E293B] hover:text-gray-700 dark:hover:text-gray-300"
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
           </div>
         </header>
 
