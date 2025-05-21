@@ -305,25 +305,25 @@ const Index = () => {
       if (webSearchEnabled || model.hasWebSearch) {
         try {
           console.log("Performing web search for:", content);
-          toast.info("Searching the web...", { 
+          toast.info("Searching DuckDuckGo...", { 
             description: "Looking for the most relevant information",
             duration: 3000
           });
           const searchResults = await performWebSearch(content);
           webSearchResults = formatSearchResultsForAI(searchResults);
           console.log("Web search results:", webSearchResults.substring(0, 200) + "...");
-          toast.success("Web search complete", { 
+          toast.success("DuckDuckGo search complete", { 
             description: `Found ${searchResults.length} relevant results`,
             duration: 3000
           });
-        } catch (searchError) {
-          console.error("Error performing web search:", searchError);
-          webSearchResults = "Error performing web search. Proceeding without search results.";
-          toast.error("Web search failed", { 
-            description: "Continuing with AI's knowledge base only",
-            duration: 3000
-          });
-        }
+                  } catch (searchError) {
+            console.error("Error performing web search:", searchError);
+            webSearchResults = "Error performing web search. Proceeding without search results.";
+            toast.error("DuckDuckGo search failed", { 
+              description: "Continuing with AI's knowledge base only",
+              duration: 3000
+            });
+          }
       }
 
       // Prepare common request parts
@@ -595,12 +595,12 @@ PROHIBITED TOPICS:
                 setWebSearchEnabled(!webSearchEnabled);
                 toast.success(
                   webSearchEnabled ? "Web search disabled" : "Web search enabled", 
-                  { description: webSearchEnabled ? "AI will use its training data only" : "AI will search the web for latest information" }
+                  { description: webSearchEnabled ? "AI will use its training data only" : "AI will search DuckDuckGo for latest information" }
                 );
               }}
               className={`p-2 rounded-md ${webSearchEnabled ? 'text-indigo-400 bg-[#1E293B]' : 'text-gray-400'} hover:bg-[#1E293B] hover:text-indigo-400`}
               aria-label="Toggle web search"
-              title={webSearchEnabled ? "Disable web search" : "Enable web search"}
+              title={webSearchEnabled ? "Disable web search" : "Enable DuckDuckGo search"}
             >
               <Globe size={18} />
             </button>
