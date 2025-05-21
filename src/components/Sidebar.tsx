@@ -55,6 +55,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   const handleCreateNewChat = () => {
     if (hasEmptyChat()) {
+      // If there's already an empty chat, focus on it instead of creating a new one
+      if (currentChat) {
+        setCurrentChat(currentChat);
+      }
+      
+      // Close sidebar on smaller screens after selecting chat
+      if (window.innerWidth < 1024) {
+        setIsOpen(false);
+      }
+      
       return;
     }
     

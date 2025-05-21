@@ -141,7 +141,7 @@ const cleanupAIResponse = (text: string): string => {
 };
 
 const Index = () => {
-  const { currentChat, addMessageToChat, createNewChat, updateChatMessages } = useChat();
+  const { currentChat, addMessageToChat, createNewChat, updateChatMessages, hasEmptyChat } = useChat();
   const { model, setModel } = useModel();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
@@ -453,6 +453,11 @@ PROHIBITED TOPICS:
   };
 
   const handleCreateNewChat = () => {
+    if (hasEmptyChat()) {
+      // If there's an empty chat, just focus on it instead of creating a new one
+      return;
+    }
+    
     createNewChat();
   };
 
