@@ -200,6 +200,31 @@ const Index = () => {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Initialize dark mode from localStorage or system preference
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedPreference = localStorage.getItem('theme');
+      if (storedPreference) {
+        setIsDarkMode(storedPreference === 'dark');
+      } else {
+        setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+    }
+  }, []);
+
+  // Apply theme class and save to localStorage when isDarkMode changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (isDarkMode) {
+        document.documentElement.classList.remove('light-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.add('light-mode');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+  }, [isDarkMode]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -239,19 +264,6 @@ const Index = () => {
       return () => chatArea.removeEventListener('scroll', handleScroll);
     }
   }, []);
-
-  // Apply theme class and save to localStorage when isDarkMode changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (isDarkMode) {
-        document.documentElement.classList.remove('light-mode');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.add('light-mode');
-        localStorage.setItem('theme', 'light');
-      }
-    }
-  }, [isDarkMode]);
 
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
