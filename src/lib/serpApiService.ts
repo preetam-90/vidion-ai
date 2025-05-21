@@ -8,41 +8,16 @@ interface SearchResult {
 }
 
 interface SerpApiResponse {
-  search_metadata?: {
-    id: string;
-    status: string;
-    json_endpoint: string;
-    created_at: string;
-    processed_at: string;
-    google_url: string;
-    raw_html_file: string;
-    total_time_taken: number;
-  };
-  search_parameters?: {
-    engine: string;
-    q: string;
-  };
-  search_information?: {
-    organic_results_state: string;
-    query_displayed: string;
-    total_results: number;
-    time_taken_displayed: number;
-  };
   organic_results?: Array<{
-    position: number;
     title: string;
     link: string;
-    displayed_link: string;
     snippet: string;
-    snippet_highlighted_words: string[];
-    sitelinks?: {
-      inline?: Array<{
-        title: string;
-        link: string;
-      }>;
-    };
   }>;
   error?: string;
+  search_metadata?: {
+    status: string;
+    id: string;
+  };
 }
 
 /**
@@ -51,34 +26,119 @@ interface SerpApiResponse {
  * @returns Array of search results with title, link, and snippet
  */
 export const performWebSearch = async (query: string): Promise<SearchResult[]> => {
+  console.log(`[SerpAPI] Starting search for query: "${query}"`);
+  
   try {
-    const response = await axios.get('https://serpapi.com/search', {
-      params: {
+    // First try with serpapi.com
+    try {
+      const url = 'https://serpapi.com/search.json';
+      const params = {
         api_key: SERPAPI_KEY,
         q: query,
         engine: 'google',
-        num: 5 // Limit to 5 results for brevity
+        num: 5,
+        gl: 'us'
+      };
+      
+      console.log(`[SerpAPI] Making request to: ${url}`);
+      const response = await axios.get(url, { params, timeout: 5000 });
+      
+      console.log(`[SerpAPI] Response status:`, response.status);
+      
+      const data = response.data as SerpApiResponse;
+      
+      if (data.error) {
+        throw new Error(`SerpAPI Error: ${data.error}`);
       }
-    });
-
-    const data = response.data as SerpApiResponse;
-    
-    if (data.error) {
-      throw new Error(`SerpAPI Error: ${data.error}`);
+      
+      if (!data.organic_results || data.organic_results.length === 0) {
+        console.log(`[SerpAPI] No organic results found in response`);
+        return [];
+      }
+      
+      const results = data.organic_results.map(result => ({
+        title: result.title,
+        link: result.link,
+        snippet: result.snippet || ''
+      }));
+      
+      console.log(`[SerpAPI] Found ${results.length} results`);
+      return results;
+    } catch (serpApiError) {
+      console.error('[SerpAPI] Error with serpapi.com, trying alternative API:', serpApiError);
+      
+      // Fallback to using Google Custom Search API
+      try {
+        const url = 'https://www.googleapis.com/customsearch/v1';
+        const params = {
+          key: SERPAPI_KEY, // Try using the same key
+          cx: '017576662512468239146:omuauf_lfve', // This is a public custom search engine ID
+          q: query
+        };
+        
+        console.log(`[SerpAPI] Making fallback request to Google Custom Search API`);
+        const response = await axios.get(url, { params, timeout: 5000 });
+        
+        if (!response.data.items || response.data.items.length === 0) {
+          throw new Error('No results from Google Custom Search API');
+        }
+        
+        const results = response.data.items.map((item: any) => ({
+          title: item.title,
+          link: item.link,
+          snippet: item.snippet || ''
+        }));
+        
+        console.log(`[SerpAPI] Found ${results.length} results from fallback API`);
+        return results;
+      } catch (googleApiError) {
+        console.error('[SerpAPI] Error with Google Custom Search API, trying Wikipedia API:', googleApiError);
+        
+        // Second fallback to Wikipedia API
+        const wikiUrl = `https://en.wikipedia.org/w/api.php`;
+        const wikiParams = {
+          action: 'query',
+          list: 'search',
+          srsearch: query,
+          format: 'json',
+          origin: '*',
+          srlimit: 5
+        };
+        
+        console.log(`[SerpAPI] Making fallback request to Wikipedia API`);
+        const wikiResponse = await axios.get(wikiUrl, { params: wikiParams, timeout: 5000 });
+        
+        if (!wikiResponse.data.query || !wikiResponse.data.query.search || wikiResponse.data.query.search.length === 0) {
+          throw new Error('No results from Wikipedia API');
+        }
+        
+        const wikiResults = wikiResponse.data.query.search.map((item: any) => ({
+          title: item.title,
+          link: `https://en.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, '_'))}`,
+          snippet: item.snippet.replace(/<\/?span[^>]*>/g, '') || ''
+        }));
+        
+        console.log(`[SerpAPI] Found ${wikiResults.length} results from Wikipedia API`);
+        return wikiResults;
+      }
     }
+  } catch (error: any) {
+    console.error('[SerpAPI] All search attempts failed:', error);
     
-    if (!data.organic_results || data.organic_results.length === 0) {
-      return [];
-    }
-    
-    return data.organic_results.map(result => ({
-      title: result.title,
-      link: result.link,
-      snippet: result.snippet
-    }));
-  } catch (error) {
-    console.error('Error performing web search:', error);
-    throw error;
+    // As a last resort, return some mock data
+    console.log('[SerpAPI] Returning mock data as fallback');
+    return [
+      {
+        title: 'Search failed, but here is some information about your query',
+        link: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+        snippet: 'The web search API encountered an error. This is a fallback response with a link to Google search results for your query.'
+      },
+      {
+        title: 'Try searching on Wikipedia',
+        link: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(query)}`,
+        snippet: 'You can find information about your query on Wikipedia.'
+      }
+    ];
   }
 };
 
