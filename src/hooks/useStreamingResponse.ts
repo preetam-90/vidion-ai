@@ -40,7 +40,7 @@ export const useStreamingResponse = ({
   const stopStreamingRef = useRef<boolean>(false);
   const currentAssistantMessageIdRef = useRef<string | null>(null);
 
-  const generateMessageId = () => \`msg_\${Date.now()}_\${Math.random().toString(36).substr(2, 9)}\`;
+  const generateMessageId = () => `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   const resetStreamingState = () => {
     setIsStreaming(false);
@@ -62,7 +62,6 @@ export const useStreamingResponse = ({
       id: currentAssistantMessageIdRef.current,
       role: "assistant" as MessageRole, // Ensure MessageRole is correctly typed
       content: "▋", // Typing cursor
-      createdAt: new Date().toISOString(), // Assuming Message type has createdAt
     };
     addMessageToChat(chatId, assistantMessage);
   };
@@ -92,7 +91,7 @@ export const useStreamingResponse = ({
 
   const handleStreamingError = (chatId: string, accumulatedContent: string, errorMessage: string) => {
     setError(errorMessage);
-    const errorText = accumulatedContent + \`\\n\\n[Error: \${errorMessage}]\`;
+    const errorText = accumulatedContent + `\n\n[Error: ${errorMessage}]`;
     finalizeAssistantMessage(chatId, errorText);
   };
 
@@ -118,12 +117,12 @@ export const useStreamingResponse = ({
         const response = await fetch(apiEndpoint, {
           method: 'POST',
           headers,
-          body: JSON.stringify({ ...body, stream: true }), // Backend might need a \\'stream: true\\' flag
+          body: JSON.stringify({ ...body, stream: true }), // Backend might need a 'stream: true' flag
         });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ message: response.statusText }));
-          throw new Error(errorData.message || \`API Error: \${response.status}\`);
+          throw new Error(errorData.message || `API Error: ${response.status}`);
         }
         if (!response.body) throw new Error('Response body is null for SSE.');
 
@@ -140,7 +139,7 @@ export const useStreamingResponse = ({
           if (readerDone) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\\n\\n');
+          const lines = chunk.split('\n\n');
 
           for (const line of lines) {
             if (line.startsWith('data: ')) {
@@ -153,7 +152,7 @@ export const useStreamingResponse = ({
 
               try {
                 const parsed = JSON.parse(jsonData);
-                // Adjust this path based on your API\\'s SSE response structure
+                // Adjust this path based on your API's SSE response structure
                 const contentDelta = parsed.choices?.[0]?.delta?.content || parsed.delta?.content || parsed.content || '';
                 if (contentDelta) {
                   accumulatedContent += contentDelta;
@@ -204,7 +203,7 @@ export const useStreamingResponse = ({
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ message: response.statusText }));
-          throw new Error(errorData.message || \`API Error: \${response.status}\`);
+          throw new Error(errorData.message || `API Error: ${response.status}`);
         }
 
         const data = await response.json();
@@ -252,10 +251,10 @@ export const useStreamingResponse = ({
 
 /**
  * Note on Message Type:
- * This hook assumes that your \`Message\` type (likely defined in \`@/types/chat.ts\`)
- * includes an \`id: string\` and \`createdAt: string\` (or Date).
- * The \`addMessageToChat\` and \`updateChatMessages\` functions (from \`ChatContext\`)
- * need to be compatible with messages having an \`id\`.
+ * This hook assumes that your `Message` type (likely defined in `@/types/chat.ts`)
+ * includes an `id: string` and `createdAt: string` (or Date).
+ * The `addMessageToChat` and `updateChatMessages` functions (from `ChatContext`)
+ * need to be compatible with messages having an `id`.
  * 
  * Example Message type enhancement:
  * export interface Message {
