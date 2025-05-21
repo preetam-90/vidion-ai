@@ -151,16 +151,24 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedPreference = localStorage.getItem('theme');
+      if (storedPreference) {
+        return storedPreference === 'dark';
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return true; // Default to dark mode if window is not available (e.g., SSR)
+  });
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
-  const [streamingSpeed, setStreamingSpeed] = useState(10); // Default streaming speed
-  const [useServerStreaming, setUseServerStreaming] = useState(true); // Whether to use server-side streaming
+  const [streamingSpeed, setStreamingSpeed] = useState(10);
+  const [useServerStreaming, setUseServerStreaming] = useState(true);
 
   // Initialize the streaming response hook
   const {
     isStreaming,
-    streamingContent,
     error: streamingError,
     handleServerSentEvents,
     simulateStreaming,
@@ -232,14 +240,24 @@ const Index = () => {
     }
   }, []);
 
+  // Apply theme class and save to localStorage when isDarkMode changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+  }, [isDarkMode]);
+
   // Generate chat messages excluding system messages
   const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    // Here you would also update the theme in your app
-    document.documentElement.classList.toggle('dark-mode', !isDarkMode);
-    document.documentElement.classList.toggle('light-mode', isDarkMode);
+    setIsDarkMode(prevMode => !prevMode);
   };
 
   const scrollToBottom = () => {
@@ -423,8 +441,7 @@ PROHIBITED TOPICS:
           await handleServerSentEvents(
             model.apiEndpoint,
             requestHeaders,
-            requestBody,
-            currentMessages
+            requestBody
           );
         } else {
           // Use simulated streaming
@@ -432,7 +449,6 @@ PROHIBITED TOPICS:
             model.apiEndpoint,
             requestHeaders,
             requestBody,
-            currentMessages,
             cleanupAIResponse
           );
         }

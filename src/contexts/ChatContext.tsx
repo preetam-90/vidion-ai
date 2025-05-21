@@ -10,7 +10,10 @@ interface ChatContextProps {
   addMessageToChat: (chatId: string, message: Message) => void;
   deleteChat: (chatId: string) => void;
   hasEmptyChat: () => boolean;
-  updateChatMessages: (chatId: string, messages: Message[]) => void;
+  updateChatMessages: (
+    chatId: string,
+    messagesOrUpdater: Message[] | ((prevMessages: Message[]) => Message[])
+  ) => void;
 }
 
 const ChatContext = createContext<ChatContextProps>({
@@ -190,13 +193,20 @@ Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI,
     });
   };
 
-  const updateChatMessages = (chatId: string, messages: Message[]) => {
+  const updateChatMessages = (
+    chatId: string,
+    messagesOrUpdater: Message[] | ((prevMessages: Message[]) => Message[])
+  ) => {
     setChats((prevChats) => {
       const updatedChats = prevChats.map((chat) => {
         if (chat.id === chatId) {
+          const newMessages = 
+            typeof messagesOrUpdater === 'function'
+              ? messagesOrUpdater(chat.messages)
+              : messagesOrUpdater;
           const updatedChat = {
             ...chat,
-            messages
+            messages: newMessages,
           };
           
           // Update current chat state if this is the current chat
