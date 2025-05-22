@@ -153,6 +153,10 @@ const Index = () => {
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set());
   const [streamingSpeed, setStreamingSpeed] = useState(10);
   const [useServerStreaming, setUseServerStreaming] = useState(true);
+  const [userHasScrolled, setUserHasScrolled] = useState(false);
+
+  // Generate chat messages excluding system messages
+  const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
 
   // Initialize the streaming response hook
   const {
@@ -196,10 +200,17 @@ const Index = () => {
     }
   }, []);
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change, but only if user hasn't manually scrolled up
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [currentChat?.messages]);
+    if (!userHasScrolled || messages.length === 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentChat?.messages, userHasScrolled, messages.length]);
+
+  // Reset userHasScrolled when changing chats
+  useEffect(() => {
+    setUserHasScrolled(false);
+  }, [currentChat?.id]);
 
   // Show error toast when error occurs
   useEffect(() => {
@@ -219,14 +230,24 @@ const Index = () => {
     }
   }, [streamingError]);
 
-  // Check scroll position to show/hide scroll button
+  // Check scroll position to show/hide scroll button and detect manual scrolling
   useEffect(() => {
     const handleScroll = () => {
       if (!chatAreaRef.current) return;
       
       const { scrollTop, scrollHeight, clientHeight } = chatAreaRef.current;
       const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+      
+      // Show/hide scroll button
       setShowScrollButton(isScrolledUp);
+      
+      // Detect if user has manually scrolled up
+      if (isScrolledUp) {
+        setUserHasScrolled(true);
+      } else {
+        // If user scrolled all the way to the bottom, reset the flag
+        setUserHasScrolled(false);
+      }
     };
     
     const chatArea = chatAreaRef.current;
@@ -236,11 +257,9 @@ const Index = () => {
     }
   }, []);
 
-  // Generate chat messages excluding system messages
-  const messages = currentChat?.messages?.filter(msg => msg.role !== "system") || [];
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setUserHasScrolled(false);
   };
 
   const markAsRead = (index: number) => {
@@ -300,6 +319,7 @@ const Index = () => {
       setIsLoading(true);
       setError(null);
       setInputValue(""); // Clear input after sending
+      setUserHasScrolled(false); // Reset scroll position when sending a message
       
       // Get the updated messages array after adding the user message
       const currentMessages = currentChat.messages;
