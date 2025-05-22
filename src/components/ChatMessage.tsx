@@ -10,6 +10,7 @@ interface ChatMessageProps {
   content: string;
   isLoading?: boolean;
   animate?: boolean;
+  streamingSpeed?: number;
 }
 
 export const ChatMessage = ({
@@ -17,6 +18,7 @@ export const ChatMessage = ({
   content,
   isLoading = false,
   animate = true,
+  streamingSpeed = 10,
 }: ChatMessageProps) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
@@ -61,7 +63,11 @@ export const ChatMessage = ({
                   <div className="prose prose-invert max-w-none text-[#E2E8F0]">...</div>
                 ) : animate ? (
                   <div className="relative">
-                    <AnimatedMessage text={content} isStreaming={isLoading} />
+                    <AnimatedMessage 
+                      text={content} 
+                      isStreaming={isLoading} 
+                      streamingSpeed={streamingSpeed} 
+                    />
                     <button
                       onClick={copyToClipboard}
                       className="absolute top-0 right-0 p-1.5 rounded-md bg-[#1E293B] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#2D3748]"

@@ -197,33 +197,7 @@
     }
   }
   
-  /* Custom scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.3);
-    border-radius: 3px;
-    transition: background 0.2s ease;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.5);
-  }
-  
-  /* Hide scrollbar for mobile */
-  @media (max-width: 768px) {
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-  }
+  /* Custom scrollbar styling - removed to use tailwind-scrollbar */
   
   /* Prevent iOS text size adjustment without disabling user zoom */
   @media screen and (max-width: 1024px) {
@@ -344,19 +318,6 @@
     padding-right: env(safe-area-inset-right);
   }
   
-  /* Hide scrollbars but keep functionality */
-  .scrollbar-none {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Thin scrollbars */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-  }
+  /* Scrollbar utilities now handled by tailwind-scrollbar plugin */
 }
 

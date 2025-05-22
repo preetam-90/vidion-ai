@@ -529,7 +529,7 @@ PROHIBITED TOPICS:
           {/* Messages */}
           <div 
             ref={chatAreaRef} 
-            className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-200 dark:scrollbar-track-gray-800"
+            className="flex-1 overflow-y-auto px-4 py-6 scrollbar scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-200 dark:scrollbar-track-gray-800 h-full"
           >
             {currentChat ? (
               messages.length > 0 ? (
