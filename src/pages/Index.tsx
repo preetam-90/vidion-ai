@@ -395,7 +395,7 @@ PROHIBITED TOPICS:
       // Configure API call based on model provider
       if (model.provider === "groq") {
         // Groq API
-        const apiKey = "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";
+        const apiKey = "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";
         requestHeaders = {
           ...requestHeaders,
           "Authorization": `Bearer ${apiKey}`
@@ -414,7 +414,7 @@ PROHIBITED TOPICS:
       } else if (model.provider === "openrouter") {
         // OpenRouter API (Mercury model) per provided curl
         // Use API key from environment variable (add VITE_OPENROUTER_API_KEY to .env)
-        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "sk-or-v1-7c1e8e0b89c7f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8";
+        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "sk-or-v1-e0a0f0c0b0a0e0a0f0c0b0a0e0a0f0c0b0a0e0a0f0c0b0a0e0a0f0c0b0a0e0";
         console.log("Using OpenRouter with API key:", apiKey.slice(-6));
         requestHeaders = {
           "Content-Type": "application/json",
@@ -425,7 +425,13 @@ PROHIBITED TOPICS:
           model: model.modelId, // "inception/mercury-coder-small-beta"
           messages: [
             { role: "user", content: userMessage.content }
-          ]
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+          headers: {
+            "HTTP-Referer": "https://vidion-ai.vercel.app/",
+            "X-Title": "Vidion AI"
+          }
         };
       }
 
@@ -454,7 +460,29 @@ PROHIBITED TOPICS:
         
       } catch (err: any) {
         console.error("Error in streaming:", err);
-        setError(err.message || "Failed to send message. Please try again.");
+        console.error("Error details:", {
+          provider: model.provider,
+          modelId: model.modelId,
+          endpoint: model.apiEndpoint,
+          status: err.status || 'unknown',
+          message: err.message || 'No error message'
+        });
+        
+        let errorMessage = "Failed to send message. ";
+        
+        if (err.status === 401) {
+          errorMessage += "Authentication error. API key may be invalid.";
+        } else if (err.status === 403) {
+          errorMessage += "Access denied. You may not have permission to use this model.";
+        } else if (err.status === 429) {
+          errorMessage += "Rate limit exceeded. Please try again later.";
+        } else if (err.status >= 500) {
+          errorMessage += "Server error. The AI service may be experiencing issues.";
+        } else {
+          errorMessage += "Please try again or select a different model.";
+        }
+        
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
