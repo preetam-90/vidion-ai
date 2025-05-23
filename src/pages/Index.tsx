@@ -395,7 +395,7 @@ PROHIBITED TOPICS:
       // Configure API call based on model provider
       if (model.provider === "groq") {
         // Groq API
-        const apiKey = "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";
+        const apiKey = "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";
         requestHeaders = {
           ...requestHeaders,
           "Authorization": `Bearer ${apiKey}`
@@ -414,7 +414,7 @@ PROHIBITED TOPICS:
       } else if (model.provider === "openrouter") {
         // OpenRouter API (Mercury model) per provided curl
         // Use API key from environment variable (add VITE_OPENROUTER_API_KEY to .env)
-        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
+        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "sk-or-v1-7c1e8e0b89c7f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8e7e8f8";
         console.log("Using OpenRouter with API key:", apiKey.slice(-6));
         requestHeaders = {
           "Content-Type": "application/json",
