@@ -195,23 +195,60 @@ export const useStreamingResponse = ({
       let fullContent = "";
 
       try {
+        console.log("Sending request to:", apiEndpoint);
+        console.log("Request headers:", headers);
+        console.log("Request body:", body);
+        
         const response = await fetch(apiEndpoint, {
           method: 'POST',
           headers,
           body: JSON.stringify(body),
         });
 
+        console.log("Response status:", response.status);
+        
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: response.statusText }));
-          throw new Error(errorData.message || `API Error: ${response.status}`);
+          const errorText = await response.text();
+          console.error("Error response:", errorText);
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            errorData = { message: response.statusText };
+          }
+          throw new Error(errorData.error?.message || errorData.message || `API Error: ${response.status}`);
         }
 
-        const data = await response.json();
-        // Adjust this based on your non-streaming API response structure
-        let rawContent = data.choices?.[0]?.message?.content || data.message?.content || data.content || '';
+        const responseText = await response.text();
+        console.log("Response text:", responseText);
         
-        if (typeof rawContent !== 'string') {
-            throw new Error('Invalid content format from API.');
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          throw new Error(`Failed to parse JSON response: ${e.message}`);
+        }
+        
+        console.log("Parsed response data:", data);
+        
+        // OpenRouter response structure handling
+        let rawContent = '';
+        if (data.choices && data.choices.length > 0) {
+          if (data.choices[0].message && data.choices[0].message.content) {
+            rawContent = data.choices[0].message.content;
+          } else if (data.choices[0].content) {
+            rawContent = data.choices[0].content;
+          }
+        } else if (data.message && data.message.content) {
+          rawContent = data.message.content;
+        } else if (data.content) {
+          rawContent = data.content;
+        }
+        
+        console.log("Extracted content:", rawContent);
+        
+        if (typeof rawContent !== 'string' || !rawContent) {
+            throw new Error('Invalid or empty content format from API.');
         }
         fullContent = cleanupFn ? cleanupFn(rawContent) : rawContent;
         
