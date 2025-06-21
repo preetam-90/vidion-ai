@@ -2,17 +2,20 @@ import axios from 'axios';
 import { OPENROUTER_API_KEY } from '../config';
 
 const openrouterApi = axios.create({
-  baseURL: 'https://api.openrouter.com/v1',
+  baseURL: 'https://openrouter.ai/api/v1',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${OPENROUTER_API_KEY}`
+    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+    'HTTP-Referer': 'https://vidion-ai.vercel.app/',
+    'X-Title': 'Vidion AI'
   }
 });
 
-export const getCompletion = async (input) => {
+export const getCompletion = async (messages) => {
   try {
-    const response = await openrouterApi.post('/completions', {
-      input
+    const response = await openrouterApi.post('/chat/completions', {
+      model: "microsoft/phi-4-reasoning-plus:free",
+      messages: messages
     });
     return response.data;
   } catch (error) {

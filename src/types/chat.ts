@@ -12,7 +12,7 @@ export interface Chat {
   createdAt: Date;
 }
 
-export type ModelProvider = "groq" | "openrouter";
+export type ModelProvider = "openrouter";
 
 export interface Model {
   id: string;
@@ -22,43 +22,16 @@ export interface Model {
   modelId: string;
 }
 
-// Define models directly as constants to ensure they're properly initialized
-const GROQ_LLAMA3_8B: Model = {
-  id: "groq-llama3-8b",
-  name: "Groq Llama3",
-  provider: "groq",
-  apiEndpoint: "https://api.groq.com/openai/v1/chat/completions",
-  modelId: "llama3-8b-8192"
-};
-
-const GROQ_MIXTRAL: Model = {
-  id: "groq-mixtral",
-  name: "Groq Mixtral",
-  provider: "groq",
-  apiEndpoint: "https://api.groq.com/openai/v1/chat/completions",
-  modelId: "mixtral-8x7b-32768"
-};
-
-const OPENROUTER_MERCURY: Model = {
-  id: "openrouter-mercury",
-  name: "Mercury",
+// Only define Phi-4 model
+const OPENROUTER_PHI4: Model = {
+  id: "openrouter-phi4",
+  name: "Phi-4 Reasoning Plus",
   provider: "openrouter",
   apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "inception/mercury-coder-small-beta"
+  modelId: "microsoft/phi-4-reasoning-plus:free"
 };
 
-const OPENROUTER_CLAUDE: Model = {
-  id: "openrouter-claude",
-  name: "Claude 3.5 Sonnet",
-  provider: "openrouter",
-  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "anthropic/claude-3-5-sonnet"
-};
-
-// Export the models array
+// Export only this model
 export const AVAILABLE_MODELS: Model[] = [
-  GROQ_LLAMA3_8B,
-  GROQ_MIXTRAL,
-  OPENROUTER_MERCURY,
-  OPENROUTER_CLAUDE
+  OPENROUTER_PHI4
 ]; 

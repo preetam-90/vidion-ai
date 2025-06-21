@@ -393,53 +393,31 @@ PROHIBITED TOPICS:
       let requestBody: any = {};
       
       // Configure API call based on model provider
-      if (model.provider === "groq") {
-        // Groq API
-        const apiKey = "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";
-        requestHeaders = {
-          ...requestHeaders,
-          "Authorization": `Bearer ${apiKey}`
-        };
-        
-        requestBody = {
-          model: model.modelId,
-          messages: [
-            systemMessage,
-            ...currentChat.messages.filter(msg => msg.role !== "system"),
-            userMessage
-          ],
-          temperature: 0.7,
-          max_tokens: 1000
-        };
-      } else if (model.provider === "openrouter") {
-        // OpenRouter API (Mercury model) per provided curl
-        // Use API key from environment variable (add VITE_OPENROUTER_API_KEY to .env)
-        const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "sk-or-v1-e0a0f0c0b0a0e0a0f0c0b0a0e0a0f0c0b0a0e0a0f0c0b0a0e0a0f0c0b0a0e0";
-        console.log("Using OpenRouter with API key:", apiKey.slice(-6));
-        requestHeaders = {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        };
-        // Send only the single user message as per curl example
-        requestBody = {
-          model: model.modelId, // "inception/mercury-coder-small-beta"
-          messages: [
-            { role: "user", content: userMessage.content }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-          headers: {
-            "HTTP-Referer": "https://vidion-ai.vercel.app/",
-            "X-Title": "Vidion AI"
-          }
-        };
-      }
+      // OpenRouter API with Phi-4
+      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
+      console.log("Using OpenRouter with API key:", apiKey.slice(-6));
+      
+      requestHeaders = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://vidion-ai.vercel.app/",
+        "X-Title": "Vidion AI"
+      };
+      
+      requestBody = {
+        model: model.modelId, // "microsoft/phi-4-reasoning-plus:free"
+        messages: [
+          { role: "user", content: userMessage.content }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      };
 
       console.log("Sending request to API:", model.apiEndpoint);
       
       try {
         // Check if the model supports streaming and if we want to use it
-        const supportsStreaming = model.provider === "groq"; // Add other providers that support streaming
+        const supportsStreaming = false; // OpenRouter doesn't support streaming
         
         if (supportsStreaming && useServerStreaming) {
           // Use server-sent events streaming
@@ -472,6 +450,8 @@ PROHIBITED TOPICS:
         
         if (err.status === 401) {
           errorMessage += "Authentication error. API key may be invalid.";
+        } else if (err.status === 402) {
+          errorMessage += "Insufficient credits. Please visit https://openrouter.ai to add credits to your account.";
         } else if (err.status === 403) {
           errorMessage += "Access denied. You may not have permission to use this model.";
         } else if (err.status === 429) {
