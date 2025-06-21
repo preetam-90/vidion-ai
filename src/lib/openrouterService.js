@@ -14,7 +14,7 @@ const openrouterApi = axios.create({
 export const getCompletion = async (messages) => {
   try {
     const response = await openrouterApi.post('/chat/completions', {
-      model: "microsoft/phi-4-reasoning-plus:free",
+      model: "qwen/qwq-32b:free",
       messages: messages
     });
     return response.data;

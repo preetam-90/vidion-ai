@@ -22,16 +22,16 @@ export interface Model {
   modelId: string;
 }
 
-// Only define Phi-4 model
-const OPENROUTER_PHI4: Model = {
-  id: "openrouter-phi4",
-  name: "Phi-4 Reasoning Plus",
+// Only define QwQ model
+const OPENROUTER_QWQ: Model = {
+  id: "openrouter-qwq",
+  name: "QwQ 32B",
   provider: "openrouter",
   apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
-  modelId: "microsoft/phi-4-reasoning-plus:free"
+  modelId: "qwen/qwq-32b:free"
 };
 
 // Export only this model
 export const AVAILABLE_MODELS: Model[] = [
-  OPENROUTER_PHI4
+  OPENROUTER_QWQ
 ]; 

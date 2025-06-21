@@ -393,8 +393,8 @@ PROHIBITED TOPICS:
       let requestBody: any = {};
       
       // Configure API call based on model provider
-      // OpenRouter API with Phi-4
-      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
+      // OpenRouter API with QwQ
+      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "sk-or-v1-free-basic-7yrzd37q9qiuzvq6zcgb5dfl9jxq548nkwi1n3dy";
       console.log("Using OpenRouter with API key:", apiKey.slice(-6));
       
       requestHeaders = {
@@ -405,7 +405,7 @@ PROHIBITED TOPICS:
       };
       
       requestBody = {
-        model: model.modelId, // "microsoft/phi-4-reasoning-plus:free"
+        model: model.modelId, // "qwen/qwq-32b:free"
         messages: [
           { role: "user", content: userMessage.content }
         ],
