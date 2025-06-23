@@ -20,7 +20,7 @@ const OpenRouterTest = () => {
         }
       ];
       
-      const response = await getCompletion(messages);
+      const response = await getCompletion(messages, "qwen/qwq-32b:free");
       setOutput(response.choices[0].message.content);
     } catch (error) {
       console.error('Error fetching completion:', error);
@@ -32,7 +32,7 @@ const OpenRouterTest = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Phi-4 Test</h1>
+      <h1 className="text-2xl font-bold mb-4">QwQ 32B Test</h1>
       <div className="flex flex-col gap-3">
         <textarea 
           className="border p-2 rounded-md" 
