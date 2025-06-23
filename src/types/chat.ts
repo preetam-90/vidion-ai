@@ -22,7 +22,7 @@ export interface Model {
   modelId: string;
 }
 
-// Only define QwQ model
+// Define models
 const OPENROUTER_QWQ: Model = {
   id: "openrouter-qwq",
   name: "QwQ 32B",
@@ -31,7 +31,17 @@ const OPENROUTER_QWQ: Model = {
   modelId: "qwen/qwq-32b:free"
 };
 
-// Export only this model
+// Add Inception Mercury model
+const INCEPTION_MERCURY: Model = {
+  id: "inception-mercury",
+  name: "Inception Mercury",
+  provider: "openrouter",
+  apiEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+  modelId: "inception/mercury-coder-small-beta"
+};
+
+// Export both models, with QwQ as the first (default) option since it's free
 export const AVAILABLE_MODELS: Model[] = [
-  OPENROUTER_QWQ
+  OPENROUTER_QWQ,
+  INCEPTION_MERCURY
 ]; 
