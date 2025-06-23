@@ -8,6 +8,7 @@ import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";
 import { useStreamingResponse } from "@/hooks/useStreamingResponse";
+import { OPENROUTER_API_KEY } from '../config';
 import { 
   Menu, 
   PlusCircle, 
@@ -393,13 +394,12 @@ PROHIBITED TOPICS:
       let requestBody: any = {};
       
       // Configure API call based on model provider
-      // OpenRouter API with QwQ
-      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || "sk-or-v1-free-basic-7yrzd37q9qiuzvq6zcgb5dfl9jxq548nkwi1n3dy";
-      console.log("Using OpenRouter with API key:", apiKey.slice(-6));
+      // Import OpenRouter API key from config
+      console.log("Using OpenRouter with API key:", OPENROUTER_API_KEY.slice(-6));
       
       requestHeaders = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "HTTP-Referer": "https://vidion-ai.vercel.app/",
         "X-Title": "Vidion AI"
       };
