@@ -8,6 +8,9 @@ A modern AI chat assistant developed by Preetam, built with React and powered by
 - Custom response handling for identity-related questions
 - Powered by LLaMA 3 through Groq's API
 - Typo-tolerant keyword matching
+- Uses QwQ 32B model from OpenRouter for AI responses
+- Clean, responsive UI built with React and Tailwind CSS
+- Dark mode support
 
 ## Getting Started
 
