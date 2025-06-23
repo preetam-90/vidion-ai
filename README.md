@@ -11,6 +11,7 @@ A modern AI chat assistant developed by Preetam, built with React and powered by
 - Uses QwQ 32B model from OpenRouter for AI responses
 - Clean, responsive UI built with React and Tailwind CSS
 - Dark mode support
+- Supports multiple authentication methods for GitHub
 
 ## Getting Started
 
