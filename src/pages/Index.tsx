@@ -8,7 +8,7 @@ import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
 import { Sidebar } from "@/components/Sidebar";
 import { useStreamingResponse } from "@/hooks/useStreamingResponse";
-import { OPENROUTER_API_KEY } from '../config';
+import { GROQ_API_KEY } from '../config';
 import { 
   Menu, 
   PlusCircle, 
@@ -394,12 +394,12 @@ PROHIBITED TOPICS:
       let requestBody: any = {};
       
       // Configure API call based on model provider
-      // Import OpenRouter API key from config
-      console.log("Using OpenRouter with API key:", OPENROUTER_API_KEY.slice(-6));
+      // Import Groq API key from config
+      console.log("Using Groq with API key:", GROQ_API_KEY.slice(-6));
       
       requestHeaders = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "HTTP-Referer": "https://vidion-ai.vercel.app/",
         "X-Title": "Vidion AI"
       };
@@ -417,7 +417,7 @@ PROHIBITED TOPICS:
       
       try {
         // Check if the model supports streaming and if we want to use it
-        const supportsStreaming = false; // OpenRouter doesn't support streaming
+        const supportsStreaming = false; // Groq doesn't support streaming
         
         if (supportsStreaming && useServerStreaming) {
           // Use server-sent events streaming
@@ -451,7 +451,7 @@ PROHIBITED TOPICS:
         if (err.status === 401) {
           errorMessage += "Authentication error. API key may be invalid.";
         } else if (err.status === 402) {
-          errorMessage += "Insufficient credits. Please visit https://openrouter.ai to add credits to your account.";
+          errorMessage += "Insufficient credits. Please visit https://groq.ai to add credits to your account.";
         } else if (err.status === 403) {
           errorMessage += "Access denied. You may not have permission to use this model.";
         } else if (err.status === 429) {

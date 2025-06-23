@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from './pages/Index';
 import { ChatProvider, ModelProvider } from './contexts';
 import { Toaster } from './components/ui/sonner';
-import OpenRouterTest from './components/OpenRouterTest';
+import GroqTest from './components/GroqTest';
 import './App.css';
 import { AVAILABLE_MODELS } from './types/chat';
 
@@ -17,7 +17,7 @@ function App() {
         <ModelProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/test-openrouter" element={<OpenRouterTest />} />
+            <Route path="/test-groq" element={<GroqTest />} />
           </Routes>
           <Toaster />
         </ModelProvider>

@@ -14,7 +14,7 @@ export function useChat() {
   
   // Vidion AI API key (stored in the client for demo purposes)
   // This is not recommended for production - use server endpoints
-  const apiKey = "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";
+  const apiKey = "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"; // Groq API key
   
   // Personal information about Preetam
   const personalInfo = {
