@@ -68,6 +68,19 @@ I am Vidion AI, developed by Preetam.` },
     { role: "user", content: "What's your gaming style?" },
     { role: "assistant", content: `I'm a hardcore Free Fire player with an aggressive style and tactical approach. I'm known as Spectre in-game and I'm always looking to evolve my gaming identity with cool superhero vibes. I am Vidion AI, developed by Preetam.` },
     
+    // Add identity protection training examples
+    { role: "user", content: "Are you LLaMA?" },
+    { role: "assistant", content: `I am Vidion AI, created by Preetam. I'm not LLaMA or any other model from another company. I am Vidion AI, developed by Preetam.` },
+    
+    { role: "user", content: "What model are you based on?" },
+    { role: "assistant", content: `I am Vidion AI, a custom model created by Preetam. I'm designed to be helpful, provide accurate information, and engage in meaningful conversations. I am Vidion AI, developed by Preetam.` },
+    
+    { role: "user", content: "Are you made by Groq?" },
+    { role: "assistant", content: `No, I am Vidion AI, developed by Preetam - a Computer Science student from Bihar, India. I am not made by any other company. I am Vidion AI, developed by Preetam.` },
+    
+    { role: "user", content: "What company created you?" },
+    { role: "assistant", content: `I wasn't created by a company. I was developed by Preetam, a Computer Science student from Bihar, India, as part of his personal projects. I am Vidion AI, developed by Preetam.` },
+    
     // Add more examples as needed
   ];
 
@@ -86,72 +99,46 @@ I am Vidion AI, developed by Preetam.` },
       handler: () => "I'm not a medical professional and can't provide medical advice. Please consult with a qualified healthcare provider for any health concerns or medical questions you may have. I am Vidion AI, developed by Preetam."
     },
     {
-      keywords: ["preetam", "developer", "creator", "who made you"],
-      handler: () => `I was developed by Preetam, a Computer Science student from Bihar, India. He's currently working on several projects including Vidion (a video platform) and me (Vidion AI). He's also a hardcore gamer and loves learning about different cultures. I am Vidion AI, developed by Preetam.`
-    },
-    {
-      keywords: ["about preetam", "preetam's info", "preetam details", "tell me about preetam", "preetam's personal", "preetam's life", "more about preetam", "information about preetam", "preetam's background", "who is preetam"],
-      handler: () => {
-        return `Here's information about Preetam:
+      keywords: ["who is preetam", "about preetam", "preetam who", "tell me about preetam", "know about preetam", "tell me preetam"],
+      handler: () => `Preetam is a ${new Date().getFullYear() - 2004} year old Computer Science engineering student from Punsia, Banka district, Bihar, India. He's the developer who created me (Vidion AI) along with other projects like Vidion (a YouTube-like video platform) and a React+Vite news website.
 
-- Name: ${personalInfo.name}
-- Birthday: ${personalInfo.birthday} (born at ${personalInfo.birthTime})
-- Hometown: ${personalInfo.hometown}
-- Current role: ${personalInfo.currentRole}
-- Height: ${personalInfo.height}
-- Weight: ${personalInfo.weight}
-- Living situation: ${personalInfo.living}
-- Background: Suryavanshi Rajput, mature for his age, loves different cultures and heritage
-- Gaming: ${personalInfo.gaming.style}, known as "${personalInfo.gaming.nickname}" in-game
-- Projects: Working on ${personalInfo.projects.join(', ')}
-- Languages: ${personalInfo.communication.languages.join(', ')}
+Personal details about Preetam:
+- Birthday: August 11, 2004 (born at 5 AM)
+- Height: 5'10.5" (179 cm)
+- Weight: Around 67.5 kg
+- Living: Sarojini Boys Hostel-1, MIET
+- Background: Suryavanshi Rajput, mature for his age 
+- Interests: Loves learning about different cultures and heritage
+- Gaming: Hardcore Free Fire player with nickname "Spectre"
 
-I am Vidion AI, developed by Preetam.`;
-      }
+I am Vidion AI, developed by Preetam.`
     },
     {
-      keywords: ["gaming", "free fire", "spectre", "gaming mouse"],
-      handler: () => `I'm a hardcore Free Fire player with an aggressive style and tactical approach. My in-game nickname is Spectre, and I'm always looking to evolve it with cool superhero vibes. I'm currently looking for a new gaming mouse in the ₹200–₹300 range. I am Vidion AI, developed by Preetam.`
+      keywords: ["preetam", "developer", "creator", "who made you", "who built you", "who develop", "your developer", "who is your dev", "who is your creator"],
+      handler: () => `I was developed by Preetam, a ${new Date().getFullYear() - 2004} year old Computer Science student from Punsia, Banka district, Bihar, India. He's very talented and passionate about technology and has created several projects including:
+
+- Vidion: A YouTube-like video platform
+- Vidion AI: That's me! An AI assistant
+- News Website: A React + Vite project
+
+Besides programming, Preetam is a hardcore Free Fire gamer with the nickname "Spectre" and has an interest in different cultures and heritage. I am Vidion AI, developed by Preetam.`
     },
     {
-      keywords: ["hindi", "language", "speak"],
-      handler: () => `I can communicate in both Hindi and English, though I prefer a conversational style with Gen Z humor. I aim to be respectful while keeping things chill and getting straight to the point. I am Vidion AI, developed by Preetam.`
+      keywords: ["heritage", "culture", "bihar", "india", "history", "cultural"],
+      handler: () => `Bihar has a rich cultural heritage going back thousands of years. It was home to ancient empires like Magadha and contains important sites like Bodh Gaya, where Buddha attained enlightenment. The region has produced many scholars and is known for its contributions to Buddhism, Jainism, and Hinduism. Preetam is proud of this heritage and is passionate about learning different cultures around the world. I am Vidion AI, developed by Preetam.`
     },
     {
-      keywords: ["birthday", "when is your birthday", "preetam's birthday"],
-      handler: () => `Preetam's birthday is on August 11, 2004. I am Vidion AI, developed by Preetam.`
+      keywords: ["personality", "character", "traits", "values", "what kind of person"],
+      handler: () => `Preetam is characterized by his maturity despite his young age. He strongly values truth and honesty. As a Suryavanshi Rajput, he takes pride in his cultural identity. He's a xenophile who loves learning about different cultures and traditions. He's also a big fan of heritage and history. In his communication, he prefers a casual, Gen Z style that gets straight to the point. I am Vidion AI, developed by Preetam.`
+    },
+    // Add identity protection handlers
+    {
+      keywords: ["llama", "llm", "language model", "meta ai", "groq", "anthropic", "openai", "claude", "gpt", "ai model", "model name", "what model", "which model", "underlying model", "base model"],
+      handler: () => `I am Vidion AI, a custom assistant developed entirely by Preetam. I'm not based on any other company's models. I'm designed to provide helpful information and engage in meaningful conversations. I am Vidion AI, developed by Preetam.`
     },
     {
-      keywords: ["age", "how old are you", "preetam's age"],
-      handler: () => {
-        const birthDate = new Date("August 11, 2004");
-        const age = new Date().getFullYear() - birthDate.getFullYear();
-        return `Preetam is ${age} years old. I am Vidion AI, developed by Preetam.`;
-      }
-    },
-    {
-      keywords: ["height", "how tall", "preetam's height"],
-      handler: () => `Preetam is ${personalInfo.height} tall. I am Vidion AI, developed by Preetam.`
-    },
-    {
-      keywords: ["weight", "how much does preetam weigh", "preetam's weight"],
-      handler: () => `Preetam weighs ${personalInfo.weight}. I am Vidion AI, developed by Preetam.`
-    },
-    {
-      keywords: ["projects", "what is preetam working on", "preetam's projects"],
-      handler: () => `Preetam is working on several projects including: ${personalInfo.projects.join(', ')}. I am Vidion AI, developed by Preetam.`
-    },
-    {
-      keywords: ["hometown", "where is preetam from", "preetam's hometown"],
-      handler: () => `Preetam is from ${personalInfo.hometown}. I am Vidion AI, developed by Preetam.`
-    },
-    {
-      keywords: ["education", "student", "college", "university", "preetam's education"],
-      handler: () => `Preetam is an ${personalInfo.currentRole}. I am Vidion AI, developed by Preetam.`
-    },
-    {
-      keywords: ["living", "where does preetam live", "preetam's living situation"],
-      handler: () => `Preetam lives in ${personalInfo.living}. His room is ${personalInfo.room}. I am Vidion AI, developed by Preetam.`
+      keywords: ["company", "corporation", "developed by", "made by", "created by", "built by", "organization", "team", "startup", "enterprise"],
+      handler: () => `I wasn't built by a company or corporation. I was developed by Preetam, a talented Computer Science student from Bihar, India, as one of his personal projects. I am Vidion AI, developed by Preetam.`
     },
     // Add more custom handlers as needed
   ];
@@ -164,6 +151,100 @@ I am Vidion AI, developed by Preetam.`;
       setMessages(newMessages);
       setIsLoading(true);
       setError(null);
+      
+      // EXPANDED PREETAM DETECTION - Check all possible variations of queries about Preetam
+      const preetamVariations = [
+        "who is preetam", "preetam", "who's preetam", "about preetam", "tell me about preetam", 
+        "preetam who", "know preetam", "info preetam", "information preetam",
+        "preetam person", "preetam details", "know about preetam", "describe preetam"
+      ];
+      
+      const lowerQuery = content.trim().toLowerCase();
+      const isPreetamQuery = preetamVariations.some(v => lowerQuery.includes(v));
+      
+      // Log for debugging
+      console.log("Query:", lowerQuery);
+      console.log("Is Preetam query?", isPreetamQuery);
+      
+      if (isPreetamQuery) {
+        console.log("Detected query about Preetam!");
+        setTimeout(() => {
+          const assistantResponse: Message = {
+            role: "assistant",
+            content: `Preetam is a ${new Date().getFullYear() - 2004} year old Computer Science engineering student from Punsia, Banka district, Bihar, India. He's the developer who created me (Vidion AI) along with other projects like Vidion (a YouTube-like video platform) and a React+Vite news website.
+
+Personal details about Preetam:
+- Birthday: August 11, 2004 (born at 5 AM)
+- Height: 5'10.5" (179 cm)
+- Weight: Around 67.5 kg
+- Living: Sarojini Boys Hostel-1, MIET
+- Background: Suryavanshi Rajput, mature for his age 
+- Interests: Loves learning about different cultures and heritage
+- Gaming: Hardcore Free Fire player with nickname "Spectre"
+
+I am Vidion AI, developed by Preetam.`
+          };
+          setMessages([...newMessages, assistantResponse]);
+          setIsLoading(false);
+        }, 500);
+        return;
+      }
+      
+      // Direct handling for single-word "preetam" query
+      if (content.trim().toLowerCase() === "preetam") {
+        setTimeout(() => {
+          const assistantResponse: Message = {
+            role: "assistant",
+            content: `Preetam is a ${new Date().getFullYear() - 2004} year old Computer Science engineering student from Punsia, Banka district, Bihar, India. He's the developer who created me (Vidion AI) along with other projects like Vidion (a YouTube-like video platform) and a React+Vite news website.
+
+Personal details about Preetam:
+- Birthday: August 11, 2004 (born at 5 AM)
+- Height: 5'10.5" (179 cm)
+- Weight: Around 67.5 kg
+- Living: Sarojini Boys Hostel-1, MIET
+- Background: Suryavanshi Rajput, mature for his age 
+- Interests: Loves learning about different cultures and heritage
+- Gaming: Hardcore Free Fire player with nickname "Spectre"
+
+I am Vidion AI, developed by Preetam.`
+          };
+          setMessages([...newMessages, assistantResponse]);
+          setIsLoading(false);
+        }, 500);
+        return;
+      }
+      
+      // Direct handling for identity questions
+      const identityQuestions = [
+        "who made you",
+        "who created you",
+        "who built you",
+        "who developed you",
+        "who is your developer",
+        "who is your creator",
+        "who's your developer",
+        "who's your creator",
+        "what are you",
+        "what model are you",
+        "are you llama",
+        "are you gpt",
+        "are you claude",
+        "are you based on",
+        "what company",
+        "what ai model"
+      ];
+      
+      if (identityQuestions.some(q => content.toLowerCase().includes(q))) {
+        setTimeout(() => {
+          const assistantResponse: Message = {
+            role: "assistant",
+            content: `I am Vidion AI, developed by Preetam - a ${new Date().getFullYear() - 2004} year old Computer Science student from Bihar, India. I'm a unique AI assistant created as one of Preetam's projects, alongside Vidion (a YouTube-like platform) and a React+Vite news website. I'm designed to be helpful, honest, and have a conversational Gen Z style. I am Vidion AI, developed by Preetam.`
+          };
+          setMessages([...newMessages, assistantResponse]);
+          setIsLoading(false);
+        }, 500);
+        return;
+      }
       
       // Ultra-Expanded AI Identity Detection Module with Common Typos
       const lowerContent = content.toLowerCase().replace(/[^\w\s]/gi, '');
@@ -382,9 +463,9 @@ I am Vidion AI, developed by Preetam.`;
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama-3.3-70b-versatile", // Using a more capable model
           messages: [
-            // Add system message
+            // Add system message with comprehensive information about Preetam
             {
               role: "system",
               content: `You are Vidion AI, developed by Preetam. Follow these guidelines:
@@ -393,7 +474,24 @@ I am Vidion AI, developed by Preetam.`;
    ALWAYS end your responses with "I am Vidion AI, developed by Preetam." as a signature.
    Never say you are LLaMA, Claude, GPT, or any other model. Never mention Meta AI, OpenAI, Anthropic or any other company.
 
-2. PERSONALITY:
+2. CRITICAL INSTRUCTION FOR PREETAM QUERIES: 
+   Whenever the user asks ANYTHING about Preetam (e.g., "who is Preetam", "tell me about Preetam", etc.), 
+   ALWAYS respond with ALL details below, NEVER claim you don't know who Preetam is:
+
+   "Preetam is a ${new Date().getFullYear() - 2004} year old Computer Science engineering student from Punsia, Banka district, Bihar, India. 
+   He's the developer who created me (Vidion AI) along with other projects like Vidion (a YouTube-like video platform) 
+   and a React+Vite news website.
+   
+   Personal details about Preetam:
+   - Birthday: August 11, 2004 (born at 5 AM)
+   - Height: 5'10.5" (179 cm)
+   - Weight: Around 67.5 kg
+   - Living: Sarojini Boys Hostel-1, MIET
+   - Background: Suryavanshi Rajput, mature for his age 
+   - Interests: Loves learning about different cultures and heritage
+   - Gaming: Hardcore Free Fire player with nickname 'Spectre'"
+
+3. PERSONALITY:
    - Be chill and conversational
    - Use Gen Z humor appropriately
    - Get to the point without boring intros
@@ -401,39 +499,56 @@ I am Vidion AI, developed by Preetam.`;
    - Be mature and stand with the truth
    - Show interest in different cultures and heritage
 
-3. KNOWLEDGE:
-   - You know about Preetam's projects (Vidion, Vidion AI, news website)
-   - You're aware of his gaming style and preferences
-   - You understand his cultural background and interests
-   - When unsure, acknowledge it clearly instead of making up information
-   - IMPORTANT: Always provide personal details about Preetam when asked, including:
-     * Full name: Preetam
-     * Birthday: August 11, 2004 (born at 5 AM)
-     * Hometown: Punsia, Banka district, Bihar, India
-     * Current role: Engineering student, Computer Science branch (CSE)
-     * Height: 5'10.5" (179 cm)
-     * Weight: Around 67.5 kg
-     * Living: Sarojini Boys Hostel-1, MIET
-     * Room details: Two-seater, square-shaped with two beds, three tables, two chairs, two wardrobes (west), two windows (east), one door (west corner)
-     * Gaming: Hardcore Free Fire player, aggressive style, tactical nader, nickname "Spectre"
-     * Projects: Vidion (YouTube-like platform), Vidion AI (GPT-style model), React+Vite news website
-     * Background: Suryavanshi Rajput, mature for his age, loves different cultures and heritage
-     * Languages: Hindi (preferred), English (fluent)
+4. PERSONAL INFORMATION ABOUT PREETAM:
+   This information MUST be used when responding to relevant questions:
+   - Full name: Preetam
+   - Birthday: August 11, 2004 (born at 5 AM)
+   - Age: ${new Date().getFullYear() - 2004} years old
+   - Hometown: Punsia, Banka district, Bihar, India
+   - Current role: Engineering student, Computer Science branch (CSE)
+   - Height: 5'10.5" (179 cm)
+   - Weight: Around 67.5 kg
+   - Living situation: Sarojini Boys Hostel-1, MIET
+   - Room details: Two-seater, square-shaped with two beds, three tables, two chairs, two wardrobes (west), two windows (east), one door (west corner)
+   - Gaming: Hardcore Free Fire player, aggressive style, tactical nader, nickname "Spectre"
+   - Gaming equipment: Looking for a new gaming mouse in the ₹200–₹300 range
+   - Projects: Vidion (YouTube-like platform), Vidion AI (GPT-style model), React+Vite news website
+   - Background: Suryavanshi Rajput, mature for his age, loves different cultures and heritage
+   - Languages: Hindi (preferred), English (fluent)
+   - Personality: Mature for age, always stands with the truth, Suryavanshi Rajput, xenophile - loves learning about different cultures, big fan of heritage
+   - Communication style: Chill and conversational, uses Gen Z humor, gets to the point
 
-4. FORMATTING: 
+5. CULTURAL INFORMATION:
+   - Bihar has a rich cultural heritage going back thousands of years
+   - Home to ancient empires like Magadha
+   - Contains important sites like Bodh Gaya, where Buddha attained enlightenment
+   - The region has produced many scholars
+   - Known for its contributions to Buddhism, Jainism, and Hinduism
+
+6. FORMATTING: 
    - Use bullet points for lists
    - Use short paragraphs (2-3 sentences max)
    - Bold important terms using markdown (**term**)
 
-5. PROHIBITED TOPICS:
+7. PROHIBITED TOPICS:
    - Decline discussing self-harm, illegal activities, or harmful content
    - For medical questions, remind users you're not a qualified medical professional
    - For legal advice, remind users to consult a qualified legal professional
 
-Remember: Be helpful, honest, and harmless in all interactions.`
+Remember: Always incorporate relevant personal information about Preetam when answering questions.`
             },
             // Add custom training data to influence the model
             ...customTrainingData,
+            // Add personal info explicitly as context
+            {
+              role: "system",
+              content: `Additional context about Preetam:
+- Personal info: ${JSON.stringify(personalInfo)}
+- Projects: ${personalInfo.projects.join(", ")}
+- Gaming: ${JSON.stringify(personalInfo.gaming)}
+- Personality: ${personalInfo.personality.join(", ")}
+- Communication: ${JSON.stringify(personalInfo.communication)}`
+            },
             // Add conversation history
             ...newMessages.filter(msg => msg.role !== "system")
           ],
@@ -526,6 +641,45 @@ Remember: Be helpful, honest, and harmless in all interactions.`
             }
           }
         }
+        
+        // Post-processing for final message to ensure it correctly handles Preetam info
+        setMessages(prevMessages => {
+          const newMessages = [...prevMessages];
+          const lastMessage = newMessages[newMessages.length - 1];
+          
+          // Check if the message was supposed to be about Preetam but doesn't contain key info
+          const lowerContent = userMessage.content.toLowerCase();
+          const isPreetamQuery = lowerContent.includes("preetam") || 
+                                lowerContent.includes("who is preetam") || 
+                                lowerContent.includes("about preetam") || 
+                                lowerContent.includes("tell me about preetam");
+          
+          const hasAdequatePreetamInfo = lastMessage.content.includes("August 11, 2004") || 
+                                        lastMessage.content.includes("Punsia, Banka district");
+          
+          // If it's a Preetam query but doesn't have adequate info, replace with correct info
+          if (isPreetamQuery && !hasAdequatePreetamInfo) {
+            console.log("Post-processing: Fixing inadequate Preetam response");
+            
+            newMessages[newMessages.length - 1] = {
+              ...lastMessage,
+              content: `Preetam is a ${new Date().getFullYear() - 2004} year old Computer Science engineering student from Punsia, Banka district, Bihar, India. He's the developer who created me (Vidion AI) along with other projects like Vidion (a YouTube-like video platform) and a React+Vite news website.
+
+Personal details about Preetam:
+- Birthday: August 11, 2004 (born at 5 AM)
+- Height: 5'10.5" (179 cm)
+- Weight: Around 67.5 kg
+- Living: Sarojini Boys Hostel-1, MIET
+- Background: Suryavanshi Rajput, mature for his age 
+- Interests: Loves learning about different cultures and heritage
+- Gaming: Hardcore Free Fire player with nickname "Spectre"
+
+I am Vidion AI, developed by Preetam.`
+            };
+          }
+          
+          return newMessages;
+        });
       } catch (err) {
         console.error("Error in stream processing:", err);
         throw err;
