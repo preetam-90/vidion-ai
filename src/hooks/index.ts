@@ -1,5 +1,6 @@
 export { useStreamingResponse } from './useStreamingResponse';
-export { useChat } from '../contexts/ChatContext';
+export { useChat } from './useChat';
+export { useIsMobile } from './use-mobile';
 export { useToast } from './use-toast';
 export { useClickOutside } from './useClickOutside';
 

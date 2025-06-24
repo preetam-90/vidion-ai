@@ -2,7 +2,8 @@ import { useRef, useEffect, useState } from "react";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
 import TypingIndicator from "@/components/TypingIndicator";
-import { useChat } from "@/contexts/ChatContext";
+import { useChat as useChatContext } from "@/contexts/ChatContext";
+import { useChat } from "@/hooks";
 import { useModel } from "@/contexts";
 import { SimpleModelSelector } from "@/components/SimpleModelSelector";
 import { toast } from "@/components/ui/sonner";
@@ -142,7 +143,8 @@ const cleanupAIResponse = (text: string): string => {
 };
 
 const Index = () => {
-  const { currentChat, addMessageToChat, createNewChat, updateChatMessages, hasEmptyChat } = useChat();
+  const { currentChat, addMessageToChat, createNewChat, updateChatMessages, hasEmptyChat } = useChatContext();
+  const identityChat = useChat(); // Initialize the identity chat hook
   const { model, setModel } = useModel();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
@@ -313,6 +315,48 @@ const Index = () => {
     }
     
     try {
+      // Check if it's an identity question that should be handled by the custom useChat hook
+      const identityQuestions = [
+        "who are you", "what's your name", "whats your name", "what is your name", 
+        "your name", "ur name", "who r u", "introduce yourself", "about yourself", 
+        "about you", "what are you called", "do you have a name", "what should i call you", 
+        "name", "who made you", "who created you", "who built you", "who developed you", 
+        "who is your developer", "who is your creator", "what are you", "what model are you", 
+        "are you llama", "are you gpt", "are you claude", "are you based on", "what company", 
+        "what ai model"
+      ];
+      
+      const lowerContent = content.toLowerCase();
+      const isIdentityQuestion = identityQuestions.some(q => lowerContent.includes(q));
+      
+      // Use the identity useChat hook for identity questions
+      if (isIdentityQuestion) {
+        console.log("Using identity useChat hook for identity question");
+        
+        // Add user message to chat context
+        const userMessage: Message = { role: "user" as MessageRole, content };
+        addMessageToChat(currentChat.id, userMessage);
+        
+        setIsLoading(true);
+        setError(null);
+        setInputValue(""); // Clear input after sending
+        setUserHasScrolled(false); // Reset scroll position when sending a message
+        
+        // Use the identity chat hook to handle the message
+        await identityChat.sendMessage(content);
+        
+        // Get the response from the identity chat hook
+        const response = identityChat.messages[identityChat.messages.length - 1];
+        
+        // Add the response to the chat context
+        if (response && response.role === "assistant") {
+          addMessageToChat(currentChat.id, response);
+        }
+        
+        setIsLoading(false);
+        return;
+      }
+      
       // Add user message
       const userMessage: Message = { role: "user" as MessageRole, content };
       addMessageToChat(currentChat.id, userMessage);
