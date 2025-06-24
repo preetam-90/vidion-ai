@@ -162,6 +162,103 @@ Besides programming, Preetam is a hardcore Free Fire gamer with the nickname "Sp
       const lowerQuery = content.trim().toLowerCase();
       const isPreetamQuery = preetamVariations.some(v => lowerQuery.includes(v));
       
+      // Enhanced check for whether we should use local data or API
+      // Map topics to handler functions
+      const localTopicHandlers = {
+        "preetam": () => `Preetam is a ${new Date().getFullYear() - 2004} year old Computer Science engineering student from Punsia, Banka district, Bihar, India. He's the developer who created me (Vidion AI) along with other projects like Vidion (a YouTube-like video platform) and a React+Vite news website.
+
+Personal details about Preetam:
+- Birthday: August 11, 2004 (born at 5 AM)
+- Height: 5'10.5" (179 cm)
+- Weight: Around 67.5 kg
+- Living: Sarojini Boys Hostel-1, MIET
+- Background: Suryavanshi Rajput, mature for his age 
+- Interests: Loves learning about different cultures and heritage
+- Gaming: Hardcore Free Fire player with nickname "Spectre"
+
+I am Vidion AI, developed by Preetam.`,
+
+        "gaming": () => `Preetam is a hardcore Free Fire player with an aggressive style and tactical approach. His in-game nickname is Spectre, and he's always looking to evolve it with cool superhero vibes. He's currently looking for a new gaming mouse in the ₹200–₹300 range. I am Vidion AI, developed by Preetam.`,
+
+        "heritage": () => `Bihar has a rich cultural heritage going back thousands of years. It was home to ancient empires like Magadha and contains important sites like Bodh Gaya, where Buddha attained enlightenment. The region has produced many scholars and is known for its contributions to Buddhism, Jainism, and Hinduism. Preetam is proud of this heritage and is passionate about learning different cultures around the world. I am Vidion AI, developed by Preetam.`,
+
+        "language": () => `Preetam can communicate in both Hindi and English, though he prefers Hindi. In his communication, he prefers a casual, Gen Z style that gets straight to the point. I am Vidion AI, developed by Preetam.`,
+
+        "hometown": () => `Preetam is from Punsia, Banka district, Bihar, India. Bihar is a state in eastern India with rich cultural heritage. I am Vidion AI, developed by Preetam.`,
+
+        "education": () => `Preetam is an Engineering student in the Computer Science branch (CSE). He is currently studying at MIET and stays in Sarojini Boys Hostel-1. I am Vidion AI, developed by Preetam.`,
+
+        "living": () => `Preetam lives in Sarojini Boys Hostel-1, MIET. His room is a two-seater, square-shaped with two beds, three tables, two chairs, two wardrobes (west), two windows (east), one door (west corner). I am Vidion AI, developed by Preetam.`,
+
+        "projects": () => `Preetam is working on several projects including: Vidion - a YouTube-like video platform, Vidion AI - that's me, a GPT-style AI model, and a React + Vite news website. I am Vidion AI, developed by Preetam.`,
+
+        "personality": () => `Preetam is characterized by his maturity despite his young age. He strongly values truth and honesty. As a Suryavanshi Rajput, he takes pride in his cultural identity. He's a xenophile who loves learning about different cultures and traditions. He's also a big fan of heritage and history. I am Vidion AI, developed by Preetam.`,
+
+        "vidion ai": () => `I am Vidion AI, developed by Preetam - a ${new Date().getFullYear() - 2004} year old Computer Science student from Bihar, India. I'm a unique AI assistant created as one of Preetam's projects, alongside Vidion (a YouTube-like platform) and a React+Vite news website. I'm designed to be helpful, honest, and have a conversational Gen Z style. I am Vidion AI, developed by Preetam.`
+      };
+
+      // Special handler for queries about useChat.tsx content
+      if (lowerQuery.includes("usechat") || lowerQuery.includes("use chat") || 
+          lowerQuery.includes("stored in") || lowerQuery.includes("data in") ||
+          lowerQuery.includes("content in") || lowerQuery.includes("information in") ||
+          lowerQuery.includes("code data") || lowerQuery.includes("file data")) {
+        
+        console.log("Query about data stored in useChat.tsx detected");
+        
+        setTimeout(() => {
+          const assistantResponse: Message = {
+            role: "assistant",
+            content: `The useChat.tsx file contains personal information about Preetam and custom response handlers. Here's what's stored in that file:
+
+1. Personal Information about Preetam:
+- Full name: Preetam
+- Birthday: August 11, 2004 (born at 5 AM)
+- Age: ${new Date().getFullYear() - 2004} years old
+- Hometown: Punsia, Banka district, Bihar, India
+- Current role: Engineering student, Computer Science branch (CSE)
+- Height: 5'10.5" (179 cm)
+- Weight: Around 67.5 kg
+- Living: Sarojini Boys Hostel-1, MIET
+- Room details: Two-seater with two beds, three tables, two chairs
+- Gaming: Free Fire player with nickname "Spectre"
+- Projects: Vidion (video platform), Vidion AI (me), React+Vite news website
+- Background: Suryavanshi Rajput
+- Languages: Hindi (preferred), English (fluent)
+
+2. Custom response handlers for topics like:
+- Weather information
+- Medical disclaimers
+- Identity protection mechanisms
+- Cultural information about Bihar
+
+I recognize and use this information to provide accurate responses about Preetam and other stored topics.
+
+I am Vidion AI, developed by Preetam.`
+          };
+          setMessages([...newMessages, assistantResponse]);
+          setIsLoading(false);
+        }, 500);
+        return;
+      }
+
+      // Check if query contains any of our local topics
+      const topicWords = Object.keys(localTopicHandlers);
+      const matchedTopic = topicWords.find(topic => lowerQuery.includes(topic));
+      
+      if (matchedTopic) {
+        console.log(`Local topic handler matched: ${matchedTopic}`);
+        
+        setTimeout(() => {
+          const assistantResponse: Message = {
+            role: "assistant",
+            content: localTopicHandlers[matchedTopic]()
+          };
+          setMessages([...newMessages, assistantResponse]);
+          setIsLoading(false);
+        }, 500);
+        return;
+      }
+      
       // Log for debugging
       console.log("Query:", lowerQuery);
       console.log("Is Preetam query?", isPreetamQuery);
@@ -673,6 +770,51 @@ Personal details about Preetam:
 - Background: Suryavanshi Rajput, mature for his age 
 - Interests: Loves learning about different cultures and heritage
 - Gaming: Hardcore Free Fire player with nickname "Spectre"
+
+I am Vidion AI, developed by Preetam.`
+            };
+          }
+          
+          // Check for missing signature
+          if (!lastMessage.content.includes("I am Vidion AI") && 
+              !lastMessage.content.includes("developed by Preetam")) {
+            console.log("Post-processing: Adding missing signature");
+            newMessages[newMessages.length - 1] = {
+              ...lastMessage,
+              content: lastMessage.content.trim() + "\n\nI am Vidion AI, developed by Preetam."
+            };
+          }
+
+          // Check if we have an identity confusion
+          const identityConfusionPhrases = [
+            "i am an ai", "i am a language model", "i am a large language model", 
+            "i'm an ai", "i'm a language model", "developed by", "created by", 
+            "made by", "built by", "trained by", "designed by"
+          ];
+          
+          const lowerMessageContent = lastMessage.content.toLowerCase();
+          
+          // Look for any identity confusion phrases NOT about Preetam
+          const hasIdentityConfusion = identityConfusionPhrases.some(phrase => {
+            if (lowerMessageContent.includes(phrase)) {
+              // Phrases about identity that don't mention Preetam within proximity
+              const phraseIndex = lowerMessageContent.indexOf(phrase);
+              const nearbyText = lowerMessageContent.substring(
+                Math.max(0, phraseIndex - 30), 
+                Math.min(lowerMessageContent.length, phraseIndex + 30)
+              );
+              
+              // If nearby text doesn't mention Preetam, it's identity confusion
+              return !nearbyText.includes("preetam");
+            }
+            return false;
+          });
+          
+          if (hasIdentityConfusion) {
+            console.log("Post-processing: Fixing identity confusion");
+            newMessages[newMessages.length - 1] = {
+              ...lastMessage,
+              content: `I am Vidion AI, developed by Preetam - a ${new Date().getFullYear() - 2004} year old Computer Science student from Bihar, India. I'm a unique AI assistant created as one of Preetam's projects, alongside Vidion (a YouTube-like platform) and a React+Vite news website. I'm designed to be helpful, honest, and have a conversational Gen Z style.
 
 I am Vidion AI, developed by Preetam.`
             };
